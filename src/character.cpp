@@ -9,6 +9,7 @@
 #include "bullet.h"
 #include "enemy.h"
 #include "sound.h"
+#include "fruit.h"
 
 Character* Character::player = nullptr;
 
@@ -152,6 +153,12 @@ void Character::NotifyCollision(GameObject& other) {
             speed.y = -300.0f;
             isGrounded = false;
         }
+    }
+
+    if (other.GetComponent<Fruit>() != nullptr) {
+        hp += 20;
+        if (hp > 100) hp = 100;
+        other.RequestDelete();
     }
 }
 

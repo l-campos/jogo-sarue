@@ -1,3 +1,7 @@
+#define PATROL_RANGE 200.0f
+#define PATROL_SPEED 150.0f
+#define DIVE_SPEED 400.0f
+
 #include <cmath>
 #include "enemy.h"
 #include "character.h"
@@ -5,6 +9,7 @@
 #include "animator.h"
 #include "collider.h"
 #include "gameobject.h"
+
 
 Enemy::Enemy(GameObject& associated, float startX, float startY) 
     : Component(associated), startX(startX), startY(startY) {
@@ -69,15 +74,32 @@ void Enemy::Update(float dt) {
     else if (state == DIVE) {
         if (animator) animator->SetAnimation("walking");
         
-        // Desce rasgando na diagonal
+        Vec2 playerPos = Character::player->GetPosition();
+        Vec2 direction = playerPos - associated.box.Center();
+
+        speed = direction.Normalize() * DIVE_SPEED;
+
+        if (sprite){
+            if (speed.x < 0) {
+                sprite->SetFlip(SDL_FLIP_HORIZONTAL);
+            }
+
+            else {
+                sprite->SetFlip(SDL_FLIP_NONE);
+            }
+        }
+
+        //Desce na diagonal
         associated.box.x += speed.x * dt;
         associated.box.y += speed.y * dt;
 
         // Se ele passar da altura do chão (ou passar do jogador), começa a subir
-        if (associated.box.y > startY + 350.0f) { // Chutando que o chão fica 300 pixels abaixo
+        if (associated.box.y > startY + 300.0f) { // Chutando que o chão fica 300 pixels abaixo
             state = RECOVER;
             speed.y = -200.0f; // Sobe
-            speed.x = (speed.x > 0) ? PATROL_SPEED : -PATROL_SPEED; // Mantém a inércia horizontal
+
+            if (speed.x > 0) speed.x = PATROL_SPEED;
+            else speed.x = -PATROL_SPEED;
         }
     } 
     

@@ -19,6 +19,7 @@
 #include "endstate.h"
 #include "enemy.h"
 #include "game.h"
+#include "fruit.h"
 
 StageState::StageState() {
 
@@ -26,7 +27,7 @@ StageState::StageState() {
     GameObject* bgObject = new GameObject();
     bgObject->box.x = 0; 
     bgObject->box.y = 0;
-    SpriteRenderer* bgSprite = new SpriteRenderer(*bgObject, "img/fundo.jpg");
+    SpriteRenderer* bgSprite = new SpriteRenderer(*bgObject, "img/FUNDO.jpg");
     bgObject->AddComponent(bgSprite);
     
 
@@ -61,6 +62,18 @@ StageState::StageState() {
     GameObject* pomboObject5 = new GameObject();
     Enemy* pombo5 = new Enemy(*pomboObject5, 1000.0f, 100.0f);
     pomboObject5->AddComponent(pombo5);
+
+    GameObject* frutaObject = new GameObject();
+    Fruit* fruta = new Fruit(*frutaObject, 600.0f, 450.0f);
+    frutaObject->AddComponent(fruta);
+    
+    GameObject* frutaObject2 = new GameObject();
+    Fruit* fruta2 = new Fruit(*frutaObject2, 100.0f, 450.0f);
+    frutaObject2->AddComponent(fruta2);
+    
+    GameObject* frutaObject3 = new GameObject();
+    Fruit* fruta3 = new Fruit(*frutaObject3, 1000.0f, 450.0f);
+    frutaObject3->AddComponent(fruta3);
     
     Camera::Follow(playerObject);
     AddObject(bgObject);
@@ -70,6 +83,9 @@ StageState::StageState() {
     AddObject(pomboObject3);
     AddObject(pomboObject4);
     AddObject(pomboObject5);
+    AddObject(frutaObject);
+    AddObject(frutaObject2);
+    AddObject(frutaObject3);
 }
 
 StageState::~StageState() {}
