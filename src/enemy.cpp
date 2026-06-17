@@ -21,12 +21,12 @@ Enemy::Enemy(GameObject& associated, float startX, float startY)
     state = PATROL;
     speed = {PATROL_SPEED, 0}; // Começa voando para a direita
 
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/Player.png", 3, 4);
+    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/NPC.png", 3, 4);
     associated.AddComponent(sprite);
 
     Animator* animator = new Animator(associated);
-    animator->AddAnimation("idle", Animation(0, 5, 0.1f)); //placeholder voando
-    animator->AddAnimation("walking", Animation(4, 4, 1.0f)); //placeholder ataque
+    animator->AddAnimation("idle", Animation(6, 9, 0.1f)); //placeholder voando
+    animator->AddAnimation("walking", Animation(0, 5, 0.1f)); //placeholder ataque
     associated.AddComponent(animator);
     
     Collider* collider = new Collider(associated);
@@ -53,8 +53,7 @@ void Enemy::Update(float dt) {
         }
 
         // Detecta o Saruê abaixo dele
-        if (Character::player != nullptr) {
-            // Pede a posição ao Saruê usando GetPosition()
+        if (Character::player != nullptr && !Character::player->IsPlayingDead()) {
             Vec2 playerPos = Character::player->GetPosition();
             
             // Calcula a distância X
@@ -62,9 +61,8 @@ void Enemy::Update(float dt) {
             
             // E o Saruê estiver abaixo dele (Y maior)
             if (distX < 100.0f && playerPos.y > associated.box.y) {
-                state = DIVE; // ATACA!
+                state = DIVE; 
                 
-                // Calcula o vetor de direção do rasante
                 Vec2 direction = playerPos - associated.box.Center();
                 speed = direction.Normalize() * DIVE_SPEED;
             }
@@ -72,36 +70,39 @@ void Enemy::Update(float dt) {
     } 
     
     else if (state == DIVE) {
-        if (animator) animator->SetAnimation("walking");
+        if (animator) animator->SetAnimation("walking"); 
         
-        Vec2 playerPos = Character::player->GetPosition();
-        Vec2 direction = playerPos - associated.box.Center();
-
-        speed = direction.Normalize() * DIVE_SPEED;
-
-        if (sprite){
-            if (speed.x < 0) {
-                sprite->SetFlip(SDL_FLIP_HORIZONTAL);
-            }
-
+        if (Character::player != nullptr) {
+            
+            // SE O SARUÊ FINGIR DE MORTO DURANTE O VOO:
+            if (Character::player->IsPlayingDead()) {
+                state = RECOVER; // Aborta a missão!
+                speed.y = -350.0f; // Puxa o pombo para cima com muita força
+                speed.x = (speed.x > 0) ? PATROL_SPEED : -PATROL_SPEED;
+            } 
             else {
-                sprite->SetFlip(SDL_FLIP_NONE);
+                // Continua teleguiado se o jogador estiver vivo e em pé
+                Vec2 playerPos = Character::player->GetPosition();
+                Vec2 direction = playerPos - associated.box.Center();
+                speed = direction.Normalize() * DIVE_SPEED;
+                
+                if (sprite) {
+                    if (speed.x < 0) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
+                    else sprite->SetFlip(SDL_FLIP_NONE);
+                }
             }
         }
 
-        //Desce na diagonal
         associated.box.x += speed.x * dt;
         associated.box.y += speed.y * dt;
 
-        // Se ele passar da altura do chão (ou passar do jogador), começa a subir
-        if (associated.box.y > startY + 300.0f) { // Chutando que o chão fica 300 pixels abaixo
+        // Se passar da altura do chão, sobe (caso o jogador desvie correndo)
+        if (associated.box.y > startY + 300.0f) { 
             state = RECOVER;
-            speed.y = -200.0f; // Sobe
-
-            if (speed.x > 0) speed.x = PATROL_SPEED;
-            else speed.x = -PATROL_SPEED;
+            speed.y = -200.0f; 
+            speed.x = (speed.x > 0) ? PATROL_SPEED : -PATROL_SPEED;
         }
-    } 
+    }
     
     else if (state == RECOVER) {
         if (animator) animator->SetAnimation("walking");

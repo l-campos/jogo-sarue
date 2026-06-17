@@ -11,6 +11,11 @@
 #include "sound.h"
 #include "fruit.h"
 
+const float GRAVITY = 1500.0f;     
+const float JUMP_FORCE = 600.0f;   
+const float MOVE_SPEED = 300.0f;   
+const float MAX_FALL_SPEED = 800.0f;
+
 Character* Character::player = nullptr;
 
 Character::Character(GameObject& associated, std::string sprite) 
@@ -50,19 +55,25 @@ void Character::Update(float dt) {
     bool canControl = damageCooldown.Get() >= 0.3f;
     if (canControl) speed.x = 0;
 
-    bool isMoving = false;
+    SpriteRenderer* spriteRenderer = associated.GetComponent<SpriteRenderer>();
     Animator* animator = associated.GetComponent<Animator>();
+    
+    isPlayingDead = false;
     
     // 1. PROCESSA A FILA DE COMANDOS
     while (!taskQueue.empty()) {
         Command cmd = taskQueue.front();
         taskQueue.pop();
-        SpriteRenderer* spriteRenderer = associated.GetComponent<SpriteRenderer>();
         
         // Se estiver atordoado, joga o comando no lixo e ignora!
         if (!canControl) continue; 
         
-        if (cmd.type == Command::MOVE) {
+        if (cmd.type == Command::PLAY_DEAD){
+            isPlayingDead = true;
+            speed.x = 0;
+        }
+        
+        else if (cmd.type == Command::MOVE) {
             // Só mexemos no eixo X! O eixo Y pertence à gravidade e ao pulo agora.
             speed.x = cmd.pos.x * linearSpeed;
             
@@ -86,17 +97,15 @@ void Character::Update(float dt) {
     if (speed.x != 0 || speed.y != 0) {
         associated.box.x += speed.x * dt;
         associated.box.y += speed.y * dt;
-        isMoving = true; // Ajuda na animação depois
     }
 
-    // 4. LIMITES E CHÃO (O mesmo que fizemos no Sarue)
     isGrounded = false;
     
     // Limites laterais da tela/mapa
     if (associated.box.x < 0) associated.box.x = 0;
     if (associated.box.x + associated.box.w > 10000) associated.box.x = 10000 - associated.box.w;
 
-    float groundLevel = 530.0f; // Ajuste para o chão da sua composição
+    float groundLevel = 700.0f; 
     
     if (associated.box.y + associated.box.h >= groundLevel) { 
         associated.box.y = groundLevel - associated.box.h;
@@ -104,19 +113,16 @@ void Character::Update(float dt) {
         isGrounded = true; 
     }
     
+    bool isMoving = (speed.x != 0);
+
     if (animator) {
-        if (isMoving) {
+        if (isPlayingDead) {
+            animator->SetAnimation("dead");
+        }
+        else if (isMoving) {
             animator->SetAnimation("walking");
         } else {
             animator->SetAnimation("idle");
-        }
-    }
-    SpriteRenderer* spriteRenderer = associated.GetComponent<SpriteRenderer>();
-    if (spriteRenderer != nullptr) {
-        if (speed.x > 0) {
-            spriteRenderer->SetFlip(SDL_FLIP_NONE);
-        } else if (speed.x < 0) {
-            spriteRenderer->SetFlip(SDL_FLIP_HORIZONTAL);
         }
     }
 
@@ -164,6 +170,10 @@ void Character::NotifyCollision(GameObject& other) {
 
 Vec2 Character::GetPosition() {
     return associated.box.Center();
+}
+
+bool Character::IsPlayingDead() {
+    return isPlayingDead;
 }
 
 void Character::Render() {}

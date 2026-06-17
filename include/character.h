@@ -20,17 +20,19 @@ public:
 
     class Command {
     public:
-        enum CommandType { MOVE, JUMP }; // Inserir ATTACK ao implementar ataque
+        enum CommandType { MOVE, JUMP, PLAY_DEAD }; // Inserir ATTACK ao implementar ataque
         Command(CommandType type, float x, float y) : type(type), pos(x, y) {}    
         CommandType type;
         Vec2 pos;
     };
-
+    
     void Issue(Command task);
     static Character* player;
     Vec2 GetPosition();
     
-    private:
+    bool IsPlayingDead();    
+
+private:
     std::weak_ptr<GameObject> gun;
     std::queue<Command> taskQueue;
     
@@ -43,10 +45,7 @@ public:
     Timer damageCooldown;
     
     bool isGrounded;
-    const float GRAVITY = 1500.0f;     
-    const float JUMP_FORCE = 600.0f;   
-    const float MOVE_SPEED = 300.0f;   
-    const float MAX_FALL_SPEED = 800.0f; 
+    bool isPlayingDead;
 };
 
 #endif

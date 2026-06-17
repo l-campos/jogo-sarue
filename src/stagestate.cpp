@@ -44,35 +44,35 @@ StageState::StageState() {
 
                         /*POMBO*/
     GameObject* pomboObject = new GameObject();
-    Enemy* pombo = new Enemy(*pomboObject, 400.0f, 100.0f);
+    Enemy* pombo = new Enemy(*pomboObject, 400.0f, 300.0f);
     pomboObject->AddComponent(pombo);
 
     GameObject* pomboObject2 = new GameObject();
-    Enemy* pombo2 = new Enemy(*pomboObject2, 900.0f, 100.0f);
+    Enemy* pombo2 = new Enemy(*pomboObject2, 900.0f, 300.0f);
     pomboObject2->AddComponent(pombo2);
 
     GameObject* pomboObject3 = new GameObject();
-    Enemy* pombo3 = new Enemy(*pomboObject3, 500.0f, 100.0f);
+    Enemy* pombo3 = new Enemy(*pomboObject3, 500.0f, 300.0f);
     pomboObject3->AddComponent(pombo3);
 
     GameObject* pomboObject4 = new GameObject();
-    Enemy* pombo4 = new Enemy(*pomboObject4, 200.0f, 100.0f);
+    Enemy* pombo4 = new Enemy(*pomboObject4, 200.0f, 300.0f);
     pomboObject4->AddComponent(pombo4);
 
     GameObject* pomboObject5 = new GameObject();
-    Enemy* pombo5 = new Enemy(*pomboObject5, 1000.0f, 100.0f);
+    Enemy* pombo5 = new Enemy(*pomboObject5, 1000.0f, 300.0f);
     pomboObject5->AddComponent(pombo5);
 
     GameObject* frutaObject = new GameObject();
-    Fruit* fruta = new Fruit(*frutaObject, 600.0f, 450.0f);
+    Fruit* fruta = new Fruit(*frutaObject, 600.0f, 690.0f);
     frutaObject->AddComponent(fruta);
     
     GameObject* frutaObject2 = new GameObject();
-    Fruit* fruta2 = new Fruit(*frutaObject2, 100.0f, 450.0f);
+    Fruit* fruta2 = new Fruit(*frutaObject2, 100.0f, 690.0f);
     frutaObject2->AddComponent(fruta2);
     
     GameObject* frutaObject3 = new GameObject();
-    Fruit* fruta3 = new Fruit(*frutaObject3, 1000.0f, 450.0f);
+    Fruit* fruta3 = new Fruit(*frutaObject3, 1000.0f, 690.0f);
     frutaObject3->AddComponent(fruta3);
     
     Camera::Follow(playerObject);

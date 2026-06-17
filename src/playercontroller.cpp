@@ -29,6 +29,10 @@ void PlayerController::Update(float dt) {
     if (input.KeyPress(SPACE_KEY) || input.KeyPress(UP_ARROW_KEY)) {
         character->Issue(Character::Command{Character::Command::JUMP, 0, 0});
     }
+
+    if (input.IsKeyDown(SDLK_s) || input.IsKeyDown(DOWN_ARROW_KEY)) {
+        character->Issue(Character::Command{Character::Command::PLAY_DEAD, 0, 0});
+    }
 }
 
 void PlayerController::Render() {}
