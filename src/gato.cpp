@@ -126,6 +126,11 @@ void Gato::Update(float dt) {
 
     // 4. ATUALIZA COLISOR
     if (collider != nullptr) collider->Update(dt);
+
+    // Se o objeto ficar 500 pixels para trás da câmera, deleta-o para salvar memória!
+    if (associated.box.x < Camera::pos.x - 500.0f) {
+        associated.RequestDelete();
+    }
 }
 
 void Gato::Render() {}

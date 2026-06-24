@@ -182,7 +182,6 @@ void Character::Update(float dt) {
     
     // Limites laterais da tela/mapa
     if (associated.box.x < 0) associated.box.x = 0;
-    if (associated.box.x + associated.box.w > 10000) associated.box.x = 10000 - associated.box.w;
 
     float groundLevel = 700.0f; 
     

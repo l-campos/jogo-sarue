@@ -126,6 +126,11 @@ void Enemy::Update(float dt) {
     // Atualiza o colisor
     Collider* collider = associated.GetComponent<Collider>();
     if (collider != nullptr) collider->Update(dt);
+
+    // Se o objeto ficar 500 pixels para trás da câmera, deleta-o para salvar memória!
+    if (associated.box.x < Camera::pos.x - 500.0f) {
+        associated.RequestDelete();
+    }
 }
 
 void Enemy::Render() {}
