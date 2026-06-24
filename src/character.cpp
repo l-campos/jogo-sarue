@@ -10,16 +10,21 @@
 #include "enemy.h"
 #include "sound.h"
 #include "fruit.h"
+#include "gato.h"
+#include "fumaca.h"
 
 const float GRAVITY = 1500.0f;     
-const float JUMP_FORCE = 600.0f;   
+const float JUMP_FORCE = 700.0f;   
 const float MOVE_SPEED = 300.0f;   
 const float MAX_FALL_SPEED = 800.0f;
+const float DASH_SPEED = 1000.0f; // Velocidade do avanço
+const float DASH_TIME = 0.2f;     // Duração do avanço
+const float DASH_COOLDOWN_TIME = 0.5f; // Tempo para poder usar de novo
 
 Character* Character::player = nullptr;
 
 Character::Character(GameObject& associated, std::string sprite) 
-    : Component(associated), hp(100), linearSpeed(300.0f), isGrounded(false) {
+    : Component(associated), hp(100), linearSpeed(300.0f), isGrounded(false), isDashing(false), isFacingLeft(false) {
     
     player = this;
 
@@ -50,7 +55,13 @@ void Character::Start() {
 
 void Character::Update(float dt) {
     damageCooldown.Update(dt);
+    dashTimer.Update(dt);
+    dashCooldown.Update(dt);
 
+    if (dashTimer.Get() > DASH_TIME) {
+        isDashing = false;
+    }
+    
     // Controle de stun
     bool canControl = damageCooldown.Get() >= 0.3f;
     if (canControl) speed.x = 0;
@@ -59,6 +70,20 @@ void Character::Update(float dt) {
     Animator* animator = associated.GetComponent<Animator>();
     
     isPlayingDead = false;
+
+    if (hp <= 0) {
+        deathTimer.Update(dt);
+        Animator* animator = associated.GetComponent<Animator>();
+        
+        if (animator) {
+            animator->SetAnimation("dead");
+        }
+
+        if (deathTimer.Get() >= 1.0f) {
+            associated.RequestDelete();
+        }
+        return;
+    }
     
     // 1. PROCESSA A FILA DE COMANDOS
     while (!taskQueue.empty()) {
@@ -69,8 +94,10 @@ void Character::Update(float dt) {
         if (!canControl) continue; 
         
         if (cmd.type == Command::PLAY_DEAD){
-            isPlayingDead = true;
-            speed.x = 0;
+            if (isGrounded) {
+                isPlayingDead = true;
+                speed.x = 0;
+            }
         }
         
         else if (cmd.type == Command::MOVE) {
@@ -78,9 +105,15 @@ void Character::Update(float dt) {
             speed.x = cmd.pos.x * linearSpeed;
             
             // Aproveita para virar o sprite
-            if (speed.x < 0) spriteRenderer->SetFlip(SDL_FLIP_HORIZONTAL);
+            if (speed.x < 0) {
+                spriteRenderer->SetFlip(SDL_FLIP_HORIZONTAL);
+                isFacingLeft = true;
+            }
 
-            else if (speed.x > 0) spriteRenderer->SetFlip(SDL_FLIP_NONE);   
+            else if (speed.x > 0) {
+                spriteRenderer->SetFlip(SDL_FLIP_NONE);   
+                isFacingLeft = false;
+            }
 
         } 
         else if (cmd.type == Command::JUMP) {
@@ -89,6 +122,52 @@ void Character::Update(float dt) {
                 isGrounded = false;
             }
         }
+        else if (cmd.type == Command::ATTACK) {
+            bool isEnemyBullet = false;
+            GameObject* bulletObj = new GameObject();
+            bulletObj->box.x = associated.box.Center().x;
+            bulletObj->box.y = associated.box.Center().y;
+
+
+            Bullet* bullet = new Bullet(*bulletObj, 0.0, 1000.0f, 10, 800.0f, isEnemyBullet);
+            bulletObj->AddComponent(bullet);
+            bulletObj->box.x -= bulletObj->box.w / 2.0f;
+            bulletObj->box.y -= bulletObj->box.h / 2.0f;
+
+            Game::GetInstance().GetCurrentState().AddObject(bulletObj);
+        }
+        else if (cmd.type == Command::DASH && !isPlayingDead) {
+            if(!isDashing && dashCooldown.Get() > DASH_COOLDOWN_TIME){
+                isDashing = true;
+                dashTimer.Restart();
+                dashCooldown.Restart();
+                
+                /*
+                DESCOMENTAR PARA DEBUGAR, NAO FUNCIONANDO CÓDIGO DA FUMACA
+
+                State& state = Game::GetInstance().GetCurrentState();
+                GameObject* smokeObj = new GameObject();
+                
+                SpriteRenderer* smokeSprite = new SpriteRenderer(*smokeObj, "img/fumaca.png");
+                
+                if (isFacingLeft) smokeSprite->SetFlip(SDL_FLIP_HORIZONTAL);
+                smokeObj->AddComponent(smokeSprite);
+
+                smokeObj->box.x = associated.box.x;
+                smokeObj->box.y = associated.box.y;
+
+                Fumaca* fumaca = new Fumaca(*smokeObj);
+                smokeObj->AddComponent(fumaca);
+                
+                state.AddObject(smokeObj);*/ 
+            }
+        }
+    }
+
+    if (isDashing) {
+        if (isFacingLeft) speed.x = -DASH_SPEED; 
+        else speed.x = DASH_SPEED;
+        speed.y = 0; 
     }
 
     speed.y += GRAVITY * dt;
@@ -140,8 +219,8 @@ void Character::NotifyCollision(GameObject& other) {
     if (hp <= 0) return;
 
     SpriteRenderer* spriteRenderer = associated.GetComponent<SpriteRenderer>();
-    
-    if (other.GetComponent<Enemy>() != nullptr) {
+     
+    if (other.GetComponent<Enemy>() != nullptr || other.GetComponent<Gato>() != nullptr) {
         if (damageCooldown.Get() > 1.0f) {
             hp--;
             damageCooldown.Restart();
@@ -162,8 +241,8 @@ void Character::NotifyCollision(GameObject& other) {
     }
 
     if (other.GetComponent<Fruit>() != nullptr) {
-        hp += 20;
-        if (hp > 100) hp = 100;
+        hp += 1;
+        if (hp > 5) hp = 5;
         other.RequestDelete();
     }
 }
@@ -174,6 +253,10 @@ Vec2 Character::GetPosition() {
 
 bool Character::IsPlayingDead() {
     return isPlayingDead;
+}
+
+int Character::GetHP() {
+    return hp;
 }
 
 void Character::Render() {}

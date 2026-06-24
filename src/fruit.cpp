@@ -25,6 +25,4 @@ void Fruit::Update(float dt) {
 
 void Fruit::Render() {}
 
-void Fruit::NotifyCollision(GameObject& other) {
-    // Não fazemos nada aqui, o Character que vai processar a "mordida"
-}
+void Fruit::NotifyCollision(GameObject& other) {}

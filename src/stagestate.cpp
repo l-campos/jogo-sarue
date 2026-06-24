@@ -20,6 +20,8 @@
 #include "enemy.h"
 #include "game.h"
 #include "fruit.h"
+#include "hud.h"
+#include "gato.h"
 
 StageState::StageState() {
 
@@ -74,6 +76,14 @@ StageState::StageState() {
     GameObject* frutaObject3 = new GameObject();
     Fruit* fruta3 = new Fruit(*frutaObject3, 1000.0f, 690.0f);
     frutaObject3->AddComponent(fruta3);
+
+    GameObject* hudObject = new GameObject();
+    HUD* hudUI = new HUD(*hudObject);
+    hudObject->AddComponent(hudUI);
+
+    GameObject* gatoObject = new GameObject();
+    Gato* gato = new Gato(*gatoObject, 800.0f, 450.0f);
+    gatoObject->AddComponent(gato);
     
     Camera::Follow(playerObject);
     AddObject(bgObject);
@@ -86,6 +96,8 @@ StageState::StageState() {
     AddObject(frutaObject);
     AddObject(frutaObject2);
     AddObject(frutaObject3);
+    AddObject(hudObject);
+    AddObject(gatoObject);
 }
 
 StageState::~StageState() {}

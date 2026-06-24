@@ -18,13 +18,13 @@ void PlayerController::Update(float dt) {
 
     character->Issue(Character::Command{Character::Command::MOVE, direction.x, 0});
 
-    // Descomentar pra implementar ataque
-    /*if (input.MousePress(LEFT_MOUSE_BUTTON)) {
+    
+    if (input.MousePress(LEFT_MOUSE_BUTTON)) {
         float mouseX = input.GetMouseX() + Camera::pos.x;
         float mouseY = input.GetMouseY() + Camera::pos.y;
 
-        character->Issue(Character::Command{Character::Command::SHOOT, mouseX, mouseY});
-    }*/
+        character->Issue(Character::Command{Character::Command::ATTACK, mouseX, mouseY});
+    }
 
     if (input.KeyPress(SPACE_KEY) || input.KeyPress(UP_ARROW_KEY)) {
         character->Issue(Character::Command{Character::Command::JUMP, 0, 0});
@@ -32,6 +32,10 @@ void PlayerController::Update(float dt) {
 
     if (input.IsKeyDown(SDLK_s) || input.IsKeyDown(DOWN_ARROW_KEY)) {
         character->Issue(Character::Command{Character::Command::PLAY_DEAD, 0, 0});
+    }
+
+    if (input.KeyPress(LEFT_SHIFT)) {
+        character->Issue(Character::Command{Character::Command::DASH, 0, 0});
     }
 }
 

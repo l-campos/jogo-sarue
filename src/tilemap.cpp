@@ -72,8 +72,16 @@ void TileMap::Render() {
     }
 }
 
-int TileMap::GetWidth() { return mapWidth; }
-int TileMap::GetHeight() { return mapHeight; }
-int TileMap::GetDepth() { return mapDepth; }
+int TileMap::GetWidth() {
+    return mapWidth;
+}
+
+int TileMap::GetHeight() { 
+    return mapHeight; 
+}
+
+int TileMap::GetDepth() { 
+    return mapDepth; 
+}
 
 void TileMap::Update(float dt) {}

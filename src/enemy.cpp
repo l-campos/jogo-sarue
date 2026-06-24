@@ -21,12 +21,12 @@ Enemy::Enemy(GameObject& associated, float startX, float startY)
     state = PATROL;
     speed = {PATROL_SPEED, 0}; // Começa voando para a direita
 
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/NPC.png", 3, 4);
+    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/Enemy.png", 3, 2);
     associated.AddComponent(sprite);
 
     Animator* animator = new Animator(associated);
-    animator->AddAnimation("idle", Animation(6, 9, 0.1f)); //placeholder voando
-    animator->AddAnimation("walking", Animation(0, 5, 0.1f)); //placeholder ataque
+    animator->AddAnimation("idle", Animation(0, 3, 0.1f)); //placeholder voando
+    animator->AddAnimation("walking", Animation(4, 1, 0.1f)); //placeholder ataque
     associated.AddComponent(animator);
     
     Collider* collider = new Collider(associated);
@@ -76,8 +76,8 @@ void Enemy::Update(float dt) {
             
             // SE O SARUÊ FINGIR DE MORTO DURANTE O VOO:
             if (Character::player->IsPlayingDead()) {
-                state = RECOVER; // Aborta a missão!
-                speed.y = -350.0f; // Puxa o pombo para cima com muita força
+                state = RECOVER; 
+                speed.y = -350.0f; 
                 speed.x = (speed.x > 0) ? PATROL_SPEED : -PATROL_SPEED;
             } 
             else {
@@ -85,6 +85,10 @@ void Enemy::Update(float dt) {
                 Vec2 playerPos = Character::player->GetPosition();
                 Vec2 direction = playerPos - associated.box.Center();
                 speed = direction.Normalize() * DIVE_SPEED;
+
+                if (direction.y < 150.0f) {
+                    direction.y = 150.0f; 
+                }                
                 
                 if (sprite) {
                     if (speed.x < 0) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
