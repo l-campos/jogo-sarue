@@ -34,10 +34,7 @@ void PlayerController::Update(float dt) {
             attackDirY = -1; // -1 indica direção para cima no nosso sistema
         }
 
-        // Se a direction.x for 0 (personagem parado), assume 1 (direita) para o ataque não falhar
-        float dirX = (direction.x == 0) ? 1.0f : direction.x;
-        
-        // e attackDirY para indicar se o ataque é para cima.
+        // CORREÇÃO: Passamos a direção exata da tecla, quem decide o lado parado é o Character
         character->Issue(Character::Command{Character::Command::ATTACK, direction.x, attackDirY});
     }
     if (input.KeyPress(SPACE_KEY) || input.KeyPress(UP_ARROW_KEY)) {

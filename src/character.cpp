@@ -124,27 +124,19 @@ void Character::Update(float dt) {
             }
         }
         else if (cmd.type == Command::ATTACK) {
+            float passDirX = cmd.pos.x;
+            
+            // CORREÇÃO: Se não está segurando "A" ou "D", ataca pra onde está virado
+            if (passDirX == 0) {
+                passDirX = isFacingLeft ? -1.0f : 1.0f;
+            }
+
             GameObject* attackObj = new GameObject();
             
-            // Usamos cmd.pos.x e cmd.pos.y correspondentes ao comando que saiu da fila
-            MeleeAttack* melee = new MeleeAttack(*attackObj, Game::GetInstance().GetCurrentState().GetObjectPtr(&associated), cmd.pos.x, cmd.pos.y);
+            MeleeAttack* melee = new MeleeAttack(*attackObj, Game::GetInstance().GetCurrentState().GetObjectPtr(&associated), passDirX, cmd.pos.y);
             
             attackObj->AddComponent(melee);
             Game::GetInstance().GetCurrentState().AddObject(attackObj);
-            
-            /* Ataque a distancia com projetil
-            bool isEnemyBullet = false;
-            GameObject* bulletObj = new GameObject();
-            bulletObj->box.x = associated.box.Center().x;
-            bulletObj->box.y = associated.box.Center().y;
-
-
-            Bullet* bullet = new Bullet(*bulletObj, 0.0, 1000.0f, 10, 800.0f, isEnemyBullet);
-            bulletObj->AddComponent(bullet);
-            bulletObj->box.x -= bulletObj->box.w / 2.0f;
-            bulletObj->box.y -= bulletObj->box.h / 2.0f;
-
-            Game::GetInstance().GetCurrentState().AddObject(bulletObj);*/
         }
         else if (cmd.type == Command::DASH && !isPlayingDead) {
             if(!isDashing && dashCooldown.Get() > DASH_COOLDOWN_TIME){

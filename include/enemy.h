@@ -13,6 +13,9 @@ public:
     void Render() override;
     void NotifyCollision(GameObject& other) override;
 
+    // Função de receber dano do Saruê
+    void Damage(int damage, Vec2 attackerPos);
+
 private:
     enum EnemyState { PATROL, DIVE, RECOVER };
     EnemyState state;
@@ -20,6 +23,11 @@ private:
     Vec2 speed;
     float startX; // Ponto inicial da patrulha
     float startY; // A altura que ele gosta de voar
+
+    // Sistema de atordoamento (Stun e HP)
+    int hp;
+    Timer damageCooldown;
+    bool isStunned;
 };
 
 #endif

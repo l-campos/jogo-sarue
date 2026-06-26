@@ -4,6 +4,8 @@
 #include "collider.h"
 #include "zombie.h"
 #include "aicontroller.h"
+#include "enemy.h" 
+#include "gato.h"
 
 MeleeAttack::MeleeAttack(GameObject& associated, std::weak_ptr<GameObject> player, float directionX, float directionY) 
     : Component(associated), player(player), dirX(directionX), dirY(directionY), damage(50), knockbackForce(150.0f) {
@@ -60,6 +62,9 @@ void MeleeAttack::Update(float dt) {
     if (durationTimer.Get() >= 0.5f) {
         associated.RequestDelete(); // Remove a hitbox da cena após meio segundo
     }
+    
+    Collider* collider = associated.GetComponent<Collider>();
+    if (collider) collider->Update(dt);
 }
 
 void MeleeAttack::Render() {}
@@ -67,26 +72,17 @@ void MeleeAttack::Render() {}
 void MeleeAttack::NotifyCollision(GameObject& other) {
     // Verifica se já atingimos esse inimigo neste ataque
     for (GameObject* hitEnemy : hitEnemies) {
-        if (hitEnemy == &other) return; // Se já bateu, ignora (evita dano por frame)
+        if (hitEnemy == &other) return; 
     }
 
-    Zombie* zombie = other.GetComponent<Zombie>();
-    AIController* ai = other.GetComponent<AIController>();
+    Enemy* passaro = other.GetComponent<Enemy>();
+    Gato* gato = other.GetComponent<Gato>();
 
-    if (zombie != nullptr || ai != nullptr) {
-        hitEnemies.push_back(&other); // Registra que o inimigo apanhou
+    if (passaro != nullptr || gato != nullptr) {
+        hitEnemies.push_back(&other); // Registra que apanhou
         
-        // Aplica o dano (usando as lógicas que você já tinha no bullet.cpp)
-        if (zombie) zombie->Damage(damage);
-        if (ai) ai->Damage(damage);
-
-        // Aplica o Knockback (Jogar para trás)
-        // Calcula a direção do empurrão baseada na posição do ataque e do inimigo
-        Vec2 knockbackDir = (other.box.Center() - associated.box.Center()).Normalize();
-        
-        // Ajuste: Você pode alterar a posição X/Y diretamente ou, se seus inimigos 
-        // tiverem física de velocidade (speed), você pode somar esse valor nela.
-        other.box.x += knockbackDir.x * knockbackForce;
-        other.box.y += knockbackDir.y * knockbackForce; 
+        // Aplica o dano chamando a função que vamos criar em cada um deles
+        if (passaro) passaro->Damage(1, associated.box.Center());
+        if (gato) gato->Damage(1, associated.box.Center());
     }
 }
