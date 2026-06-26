@@ -12,6 +12,7 @@
 #include "fruit.h"
 #include "gato.h"
 #include "fumaca.h"
+#include "meleeattack.h"
 
 const float GRAVITY = 1500.0f;     
 const float JUMP_FORCE = 700.0f;   
@@ -123,6 +124,15 @@ void Character::Update(float dt) {
             }
         }
         else if (cmd.type == Command::ATTACK) {
+            GameObject* attackObj = new GameObject();
+            
+            // Usamos cmd.pos.x e cmd.pos.y correspondentes ao comando que saiu da fila
+            MeleeAttack* melee = new MeleeAttack(*attackObj, Game::GetInstance().GetCurrentState().GetObjectPtr(&associated), cmd.pos.x, cmd.pos.y);
+            
+            attackObj->AddComponent(melee);
+            Game::GetInstance().GetCurrentState().AddObject(attackObj);
+            
+            /* Ataque a distancia com projetil
             bool isEnemyBullet = false;
             GameObject* bulletObj = new GameObject();
             bulletObj->box.x = associated.box.Center().x;
@@ -134,7 +144,7 @@ void Character::Update(float dt) {
             bulletObj->box.x -= bulletObj->box.w / 2.0f;
             bulletObj->box.y -= bulletObj->box.h / 2.0f;
 
-            Game::GetInstance().GetCurrentState().AddObject(bulletObj);
+            Game::GetInstance().GetCurrentState().AddObject(bulletObj);*/
         }
         else if (cmd.type == Command::DASH && !isPlayingDead) {
             if(!isDashing && dashCooldown.Get() > DASH_COOLDOWN_TIME){

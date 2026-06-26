@@ -1,6 +1,7 @@
-dep/character.d bin/character.o: src/character.cpp \
- /usr/include/stdc-predef.h include/character.h /usr/include/c++/13/queue \
- /usr/include/c++/13/bits/requires_hosted.h \
+dep/meleeattack.d bin/meleeattack.o: src/meleeattack.cpp \
+ /usr/include/stdc-predef.h include/meleeattack.h include/component.h \
+ include/timer.h /usr/include/c++/13/memory \
+ /usr/include/c++/13/bits/memoryfwd.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -11,45 +12,30 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/cpu_defines.h \
- /usr/include/c++/13/deque /usr/include/c++/13/bits/stl_algobase.h \
- /usr/include/c++/13/bits/functexcept.h \
- /usr/include/c++/13/bits/exception_defines.h \
- /usr/include/c++/13/bits/cpp_type_traits.h \
- /usr/include/c++/13/ext/type_traits.h \
- /usr/include/c++/13/ext/numeric_traits.h \
- /usr/include/c++/13/bits/stl_pair.h /usr/include/c++/13/type_traits \
- /usr/include/c++/13/bits/move.h /usr/include/c++/13/bits/utility.h \
- /usr/include/c++/13/bits/stl_iterator_base_types.h \
- /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/13/bits/concept_check.h \
- /usr/include/c++/13/debug/assertions.h \
- /usr/include/c++/13/bits/stl_iterator.h \
- /usr/include/c++/13/bits/ptr_traits.h /usr/include/c++/13/debug/debug.h \
- /usr/include/c++/13/bits/predefined_ops.h \
  /usr/include/c++/13/bits/allocator.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h \
  /usr/include/c++/13/bits/new_allocator.h /usr/include/c++/13/new \
  /usr/include/c++/13/bits/exception.h \
- /usr/include/c++/13/bits/memoryfwd.h \
+ /usr/include/c++/13/bits/functexcept.h \
+ /usr/include/c++/13/bits/exception_defines.h \
+ /usr/include/c++/13/bits/move.h /usr/include/c++/13/type_traits \
+ /usr/include/c++/13/bits/stl_tempbuf.h \
  /usr/include/c++/13/bits/stl_construct.h \
+ /usr/include/c++/13/bits/stl_iterator_base_types.h \
+ /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/13/bits/concept_check.h \
+ /usr/include/c++/13/debug/assertions.h \
+ /usr/include/c++/13/bits/stl_pair.h /usr/include/c++/13/bits/utility.h \
+ /usr/include/c++/13/ext/numeric_traits.h \
+ /usr/include/c++/13/bits/cpp_type_traits.h \
+ /usr/include/c++/13/ext/type_traits.h \
  /usr/include/c++/13/bits/stl_uninitialized.h \
+ /usr/include/c++/13/bits/stl_algobase.h \
+ /usr/include/c++/13/bits/stl_iterator.h \
+ /usr/include/c++/13/bits/ptr_traits.h /usr/include/c++/13/debug/debug.h \
+ /usr/include/c++/13/bits/predefined_ops.h \
  /usr/include/c++/13/ext/alloc_traits.h \
  /usr/include/c++/13/bits/alloc_traits.h \
- /usr/include/c++/13/bits/stl_deque.h \
- /usr/include/c++/13/initializer_list /usr/include/c++/13/bits/refwrap.h \
- /usr/include/c++/13/bits/invoke.h \
- /usr/include/c++/13/bits/stl_function.h \
- /usr/include/c++/13/backward/binders.h \
- /usr/include/c++/13/bits/range_access.h \
- /usr/include/c++/13/bits/deque.tcc /usr/include/c++/13/vector \
- /usr/include/c++/13/bits/stl_vector.h \
- /usr/include/c++/13/bits/stl_bvector.h \
- /usr/include/c++/13/bits/functional_hash.h \
- /usr/include/c++/13/bits/hash_bytes.h \
- /usr/include/c++/13/bits/vector.tcc /usr/include/c++/13/bits/stl_heap.h \
- /usr/include/c++/13/bits/stl_queue.h \
- /usr/include/c++/13/bits/uses_allocator.h /usr/include/c++/13/memory \
- /usr/include/c++/13/bits/stl_tempbuf.h \
  /usr/include/c++/13/bits/stl_raw_storage_iter.h \
  /usr/include/c++/13/bits/align.h /usr/include/c++/13/bit \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
@@ -61,8 +47,15 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
+ /usr/include/c++/13/bits/uses_allocator.h \
  /usr/include/c++/13/bits/unique_ptr.h /usr/include/c++/13/tuple \
+ /usr/include/c++/13/bits/invoke.h \
+ /usr/include/c++/13/bits/stl_function.h \
+ /usr/include/c++/13/backward/binders.h \
+ /usr/include/c++/13/bits/functional_hash.h \
+ /usr/include/c++/13/bits/hash_bytes.h \
  /usr/include/c++/13/bits/shared_ptr.h /usr/include/c++/13/iosfwd \
+ /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/c++/13/bits/stringfwd.h /usr/include/c++/13/bits/postypes.h \
  /usr/include/c++/13/cwchar /usr/include/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
@@ -78,6 +71,7 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/c++/13/bits/shared_ptr_base.h /usr/include/c++/13/typeinfo \
  /usr/include/c++/13/bits/allocated_ptr.h \
+ /usr/include/c++/13/bits/refwrap.h \
  /usr/include/c++/13/ext/aligned_buffer.h \
  /usr/include/c++/13/ext/atomicity.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h \
@@ -117,7 +111,13 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/c++/13/bits/shared_ptr_atomic.h \
  /usr/include/c++/13/bits/atomic_base.h \
  /usr/include/c++/13/bits/atomic_lockfree_defines.h \
- /usr/include/c++/13/backward/auto_ptr.h /usr/include/c++/13/string \
+ /usr/include/c++/13/backward/auto_ptr.h /usr/include/c++/13/vector \
+ /usr/include/c++/13/bits/stl_vector.h \
+ /usr/include/c++/13/initializer_list \
+ /usr/include/c++/13/bits/stl_bvector.h \
+ /usr/include/c++/13/bits/range_access.h \
+ /usr/include/c++/13/bits/vector.tcc include/spriterenderer.h \
+ include/sprite.h /usr/include/c++/13/string \
  /usr/include/c++/13/bits/char_traits.h \
  /usr/include/c++/13/bits/localefwd.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h \
@@ -148,11 +148,9 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
  /usr/include/c++/13/bits/charconv.h \
- /usr/include/c++/13/bits/basic_string.tcc include/component.h \
- include/timer.h include/vec2.h include/spriterenderer.h include/sprite.h \
- include/SDL_include.h /usr/include/SDL2/SDL.h \
- /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
- /usr/include/SDL2/SDL_config.h \
+ /usr/include/c++/13/bits/basic_string.tcc include/SDL_include.h \
+ /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
+ /usr/include/SDL2/SDL_stdinc.h /usr/include/SDL2/SDL_config.h \
  /usr/include/x86_64-linux-gnu/SDL2/_real_SDL_config.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/begin_code.h \
  /usr/include/SDL2/close_code.h /usr/include/c++/13/stdlib.h \
@@ -285,23 +283,21 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h include/camera.h include/gameobject.h \
- include/rect.h include/gun.h include/sound.h \
- /usr/include/SDL2/SDL_mixer.h include/game.h /usr/include/c++/13/stack \
- /usr/include/c++/13/bits/stl_stack.h include/gameobject.h \
- include/animator.h /usr/include/c++/13/unordered_map \
+ include/rect.h include/vec2.h include/animator.h \
+ /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \
  /usr/include/c++/13/bits/hashtable.h \
  /usr/include/c++/13/bits/hashtable_policy.h \
  /usr/include/c++/13/bits/enable_special_members.h \
  /usr/include/c++/13/bits/erase_if.h include/animation.h \
- include/stagestate.h include/music.h include/tilemap.h include/tileset.h \
- include/state.h include/collider.h include/bullet.h include/enemy.h \
- include/sound.h include/fruit.h include/gato.h include/fumaca.h \
- include/meleeattack.h
+ include/collider.h include/zombie.h include/sound.h \
+ /usr/include/SDL2/SDL_mixer.h include/aicontroller.h
 /usr/include/stdc-predef.h:
-include/character.h:
-/usr/include/c++/13/queue:
-/usr/include/c++/13/bits/requires_hosted.h:
+include/meleeattack.h:
+include/component.h:
+include/timer.h:
+/usr/include/c++/13/memory:
+/usr/include/c++/13/bits/memoryfwd.h:
 /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h:
 /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h:
 /usr/include/features.h:
@@ -313,54 +309,34 @@ include/character.h:
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 /usr/include/x86_64-linux-gnu/c++/13/bits/cpu_defines.h:
-/usr/include/c++/13/deque:
-/usr/include/c++/13/bits/stl_algobase.h:
-/usr/include/c++/13/bits/functexcept.h:
-/usr/include/c++/13/bits/exception_defines.h:
-/usr/include/c++/13/bits/cpp_type_traits.h:
-/usr/include/c++/13/ext/type_traits.h:
-/usr/include/c++/13/ext/numeric_traits.h:
-/usr/include/c++/13/bits/stl_pair.h:
-/usr/include/c++/13/type_traits:
-/usr/include/c++/13/bits/move.h:
-/usr/include/c++/13/bits/utility.h:
-/usr/include/c++/13/bits/stl_iterator_base_types.h:
-/usr/include/c++/13/bits/stl_iterator_base_funcs.h:
-/usr/include/c++/13/bits/concept_check.h:
-/usr/include/c++/13/debug/assertions.h:
-/usr/include/c++/13/bits/stl_iterator.h:
-/usr/include/c++/13/bits/ptr_traits.h:
-/usr/include/c++/13/debug/debug.h:
-/usr/include/c++/13/bits/predefined_ops.h:
 /usr/include/c++/13/bits/allocator.h:
 /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h:
 /usr/include/c++/13/bits/new_allocator.h:
 /usr/include/c++/13/new:
 /usr/include/c++/13/bits/exception.h:
-/usr/include/c++/13/bits/memoryfwd.h:
+/usr/include/c++/13/bits/functexcept.h:
+/usr/include/c++/13/bits/exception_defines.h:
+/usr/include/c++/13/bits/move.h:
+/usr/include/c++/13/type_traits:
+/usr/include/c++/13/bits/stl_tempbuf.h:
 /usr/include/c++/13/bits/stl_construct.h:
+/usr/include/c++/13/bits/stl_iterator_base_types.h:
+/usr/include/c++/13/bits/stl_iterator_base_funcs.h:
+/usr/include/c++/13/bits/concept_check.h:
+/usr/include/c++/13/debug/assertions.h:
+/usr/include/c++/13/bits/stl_pair.h:
+/usr/include/c++/13/bits/utility.h:
+/usr/include/c++/13/ext/numeric_traits.h:
+/usr/include/c++/13/bits/cpp_type_traits.h:
+/usr/include/c++/13/ext/type_traits.h:
 /usr/include/c++/13/bits/stl_uninitialized.h:
+/usr/include/c++/13/bits/stl_algobase.h:
+/usr/include/c++/13/bits/stl_iterator.h:
+/usr/include/c++/13/bits/ptr_traits.h:
+/usr/include/c++/13/debug/debug.h:
+/usr/include/c++/13/bits/predefined_ops.h:
 /usr/include/c++/13/ext/alloc_traits.h:
 /usr/include/c++/13/bits/alloc_traits.h:
-/usr/include/c++/13/bits/stl_deque.h:
-/usr/include/c++/13/initializer_list:
-/usr/include/c++/13/bits/refwrap.h:
-/usr/include/c++/13/bits/invoke.h:
-/usr/include/c++/13/bits/stl_function.h:
-/usr/include/c++/13/backward/binders.h:
-/usr/include/c++/13/bits/range_access.h:
-/usr/include/c++/13/bits/deque.tcc:
-/usr/include/c++/13/vector:
-/usr/include/c++/13/bits/stl_vector.h:
-/usr/include/c++/13/bits/stl_bvector.h:
-/usr/include/c++/13/bits/functional_hash.h:
-/usr/include/c++/13/bits/hash_bytes.h:
-/usr/include/c++/13/bits/vector.tcc:
-/usr/include/c++/13/bits/stl_heap.h:
-/usr/include/c++/13/bits/stl_queue.h:
-/usr/include/c++/13/bits/uses_allocator.h:
-/usr/include/c++/13/memory:
-/usr/include/c++/13/bits/stl_tempbuf.h:
 /usr/include/c++/13/bits/stl_raw_storage_iter.h:
 /usr/include/c++/13/bits/align.h:
 /usr/include/c++/13/bit:
@@ -374,10 +350,17 @@ include/character.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-least.h:
+/usr/include/c++/13/bits/uses_allocator.h:
 /usr/include/c++/13/bits/unique_ptr.h:
 /usr/include/c++/13/tuple:
+/usr/include/c++/13/bits/invoke.h:
+/usr/include/c++/13/bits/stl_function.h:
+/usr/include/c++/13/backward/binders.h:
+/usr/include/c++/13/bits/functional_hash.h:
+/usr/include/c++/13/bits/hash_bytes.h:
 /usr/include/c++/13/bits/shared_ptr.h:
 /usr/include/c++/13/iosfwd:
+/usr/include/c++/13/bits/requires_hosted.h:
 /usr/include/c++/13/bits/stringfwd.h:
 /usr/include/c++/13/bits/postypes.h:
 /usr/include/c++/13/cwchar:
@@ -396,6 +379,7 @@ include/character.h:
 /usr/include/c++/13/bits/shared_ptr_base.h:
 /usr/include/c++/13/typeinfo:
 /usr/include/c++/13/bits/allocated_ptr.h:
+/usr/include/c++/13/bits/refwrap.h:
 /usr/include/c++/13/ext/aligned_buffer.h:
 /usr/include/c++/13/ext/atomicity.h:
 /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h:
@@ -439,6 +423,14 @@ include/character.h:
 /usr/include/c++/13/bits/atomic_base.h:
 /usr/include/c++/13/bits/atomic_lockfree_defines.h:
 /usr/include/c++/13/backward/auto_ptr.h:
+/usr/include/c++/13/vector:
+/usr/include/c++/13/bits/stl_vector.h:
+/usr/include/c++/13/initializer_list:
+/usr/include/c++/13/bits/stl_bvector.h:
+/usr/include/c++/13/bits/range_access.h:
+/usr/include/c++/13/bits/vector.tcc:
+include/spriterenderer.h:
+include/sprite.h:
 /usr/include/c++/13/string:
 /usr/include/c++/13/bits/char_traits.h:
 /usr/include/c++/13/bits/localefwd.h:
@@ -483,11 +475,6 @@ include/character.h:
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 /usr/include/c++/13/bits/charconv.h:
 /usr/include/c++/13/bits/basic_string.tcc:
-include/component.h:
-include/timer.h:
-include/vec2.h:
-include/spriterenderer.h:
-include/sprite.h:
 include/SDL_include.h:
 /usr/include/SDL2/SDL.h:
 /usr/include/SDL2/SDL_main.h:
@@ -655,13 +642,7 @@ include/SDL_include.h:
 include/camera.h:
 include/gameobject.h:
 include/rect.h:
-include/gun.h:
-include/sound.h:
-/usr/include/SDL2/SDL_mixer.h:
-include/game.h:
-/usr/include/c++/13/stack:
-/usr/include/c++/13/bits/stl_stack.h:
-include/gameobject.h:
+include/vec2.h:
 include/animator.h:
 /usr/include/c++/13/unordered_map:
 /usr/include/c++/13/bits/unordered_map.h:
@@ -670,16 +651,8 @@ include/animator.h:
 /usr/include/c++/13/bits/enable_special_members.h:
 /usr/include/c++/13/bits/erase_if.h:
 include/animation.h:
-include/stagestate.h:
-include/music.h:
-include/tilemap.h:
-include/tileset.h:
-include/state.h:
 include/collider.h:
-include/bullet.h:
-include/enemy.h:
+include/zombie.h:
 include/sound.h:
-include/fruit.h:
-include/gato.h:
-include/fumaca.h:
-include/meleeattack.h:
+/usr/include/SDL2/SDL_mixer.h:
+include/aicontroller.h:

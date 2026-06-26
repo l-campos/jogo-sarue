@@ -19,13 +19,27 @@ void PlayerController::Update(float dt) {
     character->Issue(Character::Command{Character::Command::MOVE, direction.x, 0});
 
     
+    /* Ataque a distancia com projeteis
     if (input.MousePress(LEFT_MOUSE_BUTTON)) {
         float mouseX = input.GetMouseX() + Camera::pos.x;
         float mouseY = input.GetMouseY() + Camera::pos.y;
 
         character->Issue(Character::Command{Character::Command::ATTACK, mouseX, mouseY});
-    }
+    }*/
 
+    if (input.MousePress(LEFT_MOUSE_BUTTON)) {
+        // Verifica se o jogador está segurando 'W' para atacar para cima
+        float attackDirY = 0;
+        if (input.IsKeyDown(SDLK_w)) {
+            attackDirY = -1; // -1 indica direção para cima no nosso sistema
+        }
+
+        // Se a direction.x for 0 (personagem parado), assume 1 (direita) para o ataque não falhar
+        float dirX = (direction.x == 0) ? 1.0f : direction.x;
+        
+        // e attackDirY para indicar se o ataque é para cima.
+        character->Issue(Character::Command{Character::Command::ATTACK, direction.x, attackDirY});
+    }
     if (input.KeyPress(SPACE_KEY) || input.KeyPress(UP_ARROW_KEY)) {
         character->Issue(Character::Command{Character::Command::JUMP, 0, 0});
     }
