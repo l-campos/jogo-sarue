@@ -14,7 +14,7 @@ const float JUMP_RANGE = 200.0f;   // Distância para dar o bote
 const float AGGRO_RANGE = 500.0f;  // Visão do gato
 
 Gato::Gato(GameObject& associated, float x, float y)
-    : Component(associated), state(PATROL), hp(2), startX(x), isGrounded(false), groundLevel(700.0f) {
+    : Component(associated), state(PATROL), hp(2), startX(x), isGrounded(false), groundLevel(700.0f), isStunned(false) {
     associated.box.x = x;
     associated.box.y = y;
     speed = {PATROL_SPEED, 0};
@@ -32,6 +32,13 @@ Gato::Gato(GameObject& associated, float x, float y)
 }
 
 void Gato::Update(float dt) {
+    if (isStunned) {
+        damageCooldown.Update(dt);
+        if (damageCooldown.Get() >= 0.3f) {
+            isStunned = false; // Sai do atordoamento
+        }
+    }
+
     Animator* animator = associated.GetComponent<Animator>();
     SpriteRenderer* sprite = associated.GetComponent<SpriteRenderer>();
     Collider* collider = associated.GetComponent<Collider>();
@@ -46,81 +53,82 @@ void Gato::Update(float dt) {
         speed.y = 0;
         isGrounded = true;
     }
+    if (!isStunned) {
+        if (state == PATROL) {
+            if (animator) animator->SetAnimation("patrol");
 
-    if (state == PATROL) {
-        if (animator) animator->SetAnimation("patrol");
-
-        // Vai e volta na área dele
-        if (associated.box.x > startX + 150.0f) {
-            speed.x = -PATROL_SPEED;
-            if (sprite) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
-        } else if (associated.box.x < startX - 150.0f) {
-            speed.x = PATROL_SPEED;
-            if (sprite) sprite->SetFlip(SDL_FLIP_NONE);
-        }
-
-        // Se o Saruê chegar perto e não estiver fingindo de morto:
-        if (Character::player != nullptr) {
-            float distX = std::abs(associated.box.Center().x - Character::player->GetPosition().x);
-            if (distX < AGGRO_RANGE) state = CHASE;
-        }
-    }
-    
-    else if (state == CHASE) {
-        if (animator) animator->SetAnimation("attack");
-
-        if (Character::player != nullptr) {
-            float playerX = Character::player->GetPosition().x;
-            float distX = std::abs(associated.box.Center().x - playerX);
-
-            // Acelera na direção do jogador
-            speed.x = (playerX > associated.box.Center().x) ? CHASE_SPEED : -CHASE_SPEED;
-            
-            if (sprite) {
-                if (speed.x < 0) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
-                else sprite->SetFlip(SDL_FLIP_NONE);
+            // Vai e volta na área dele
+            if (associated.box.x > startX + 150.0f) {
+                speed.x = -PATROL_SPEED;
+                if (sprite) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
+            } else if (associated.box.x < startX - 150.0f) {
+                speed.x = PATROL_SPEED;
+                if (sprite) sprite->SetFlip(SDL_FLIP_NONE);
             }
 
-            // Se chegou perto o suficiente, dá o BOTE!
-            if (distX < JUMP_RANGE && isGrounded) {
-                speed.y = -JUMP_FORCE; 
-                isGrounded = false;
-                state = JUMP;
+            // Se o Saruê chegar perto e não estiver fingindo de morto:
+            if (Character::player != nullptr) {
+                float distX = std::abs(associated.box.Center().x - Character::player->GetPosition().x);
+                if (distX < AGGRO_RANGE) state = CHASE;
             }
-        } 
-    }
-    
-    else if (state == JUMP) {
-        if (animator) animator->SetAnimation("attack");
-
-        // Assim que ele atinge o pico do pulo e começa a cair, ele ativa o ataque
-        if (speed.y > -100.0f) { 
-            state = ATTACK;
-            // ESTICA O COLISOR PARA SIMULAR A GARRA (Aumenta a largura em 50%)
-            if (collider) collider->SetScale({1.5f, 1.0f}); 
         }
-    }
-    
-    else if (state == ATTACK) {
-        if (animator) animator->SetAnimation("attack");
-        // No ar, ele mantém a inércia do pulo para frente até bater no chão
         
-        if (isGrounded) {
-            state = COOLDOWN;
-            speed.x = 0; // Trava no chão para respirar
-            cooldownTimer.Restart();
-            
-            // VOLTA O COLISOR AO NORMAL (Retrai a garra)
-            if (collider) collider->SetScale({1.0f, 1.0f});
-        }
-    }
-    
-    else if (state == COOLDOWN) {
-        if (animator) animator->SetAnimation("patrol");
+        else if (state == CHASE) {
+            if (animator) animator->SetAnimation("attack");
 
-        cooldownTimer.Update(dt);
-        if (cooldownTimer.Get() > 1.0f) { // Fica 1 segundo parado no chão
-            state = CHASE; // Volta a correr implacavelmente!
+            if (Character::player != nullptr) {
+                float playerX = Character::player->GetPosition().x;
+                float distX = std::abs(associated.box.Center().x - playerX);
+
+                // Acelera na direção do jogador
+                speed.x = (playerX > associated.box.Center().x) ? CHASE_SPEED : -CHASE_SPEED;
+                
+                if (sprite) {
+                    if (speed.x < 0) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
+                    else sprite->SetFlip(SDL_FLIP_NONE);
+                }
+
+                // Se chegou perto o suficiente, dá o BOTE!
+                if (distX < JUMP_RANGE && isGrounded) {
+                    speed.y = -JUMP_FORCE; 
+                    isGrounded = false;
+                    state = JUMP;
+                }
+            } 
+        }
+        
+        else if (state == JUMP) {
+            if (animator) animator->SetAnimation("attack");
+
+            // Assim que ele atinge o pico do pulo e começa a cair, ele ativa o ataque
+            if (speed.y > -100.0f) { 
+                state = ATTACK;
+                // ESTICA O COLISOR PARA SIMULAR A GARRA (Aumenta a largura em 50%)
+                if (collider) collider->SetScale({1.5f, 1.0f}); 
+            }
+        }
+        
+        else if (state == ATTACK) {
+            if (animator) animator->SetAnimation("attack");
+            // No ar, ele mantém a inércia do pulo para frente até bater no chão
+            
+            if (isGrounded) {
+                state = COOLDOWN;
+                speed.x = 0; // Trava no chão para respirar
+                cooldownTimer.Restart();
+                
+                // VOLTA O COLISOR AO NORMAL (Retrai a garra)
+                if (collider) collider->SetScale({1.0f, 1.0f});
+            }
+        }
+        
+        else if (state == COOLDOWN) {
+            if (animator) animator->SetAnimation("patrol");
+
+            cooldownTimer.Update(dt);
+            if (cooldownTimer.Get() > 1.0f) { // Fica 1 segundo parado no chão
+                state = CHASE; // Volta a correr implacavelmente!
+            }
         }
     }
 
@@ -142,5 +150,25 @@ void Gato::NotifyCollision(GameObject& other) {
         if (hp < 0) {
             associated.RequestDelete();
         }
+    }
+}
+
+void Gato::Damage(int damage, Vec2 attackerPos) {
+    // CORREÇÃO: Verifica apenas se o gato já não está atordoado
+    if (!isStunned) { 
+        hp -= damage;
+        isStunned = true;
+        damageCooldown.Restart();
+
+        // O Knockback (joga pra cima e pra trás igual o player)
+        speed.y = -300.0f;
+        if (associated.box.Center().x > attackerPos.x) {
+            speed.x = 400.0f;
+        } else {
+            speed.x = -400.0f;
+        }
+        isGrounded = false;
+
+        if (hp <= 0) associated.RequestDelete();
     }
 }

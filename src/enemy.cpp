@@ -12,7 +12,7 @@
 
 
 Enemy::Enemy(GameObject& associated, float startX, float startY) 
-    : Component(associated), startX(startX), startY(startY) {
+    : Component(associated), startX(startX), startY(startY), hp(2), isStunned(false) {
     
     // Posiciona o Pombo
     associated.box.x = startX;
@@ -34,6 +34,26 @@ Enemy::Enemy(GameObject& associated, float startX, float startY)
 }
 
 void Enemy::Update(float dt) {
+    if (isStunned) {
+        damageCooldown.Update(dt);
+        
+        // FÍSICA DE KNOCKBACK ENQUANTO ESTÁ ATORDOADO
+        if (damageCooldown.Get() < 0.3f) {
+            speed.y += 1500.0f * dt; 
+            associated.box.x += speed.x * dt;
+            associated.box.y += speed.y * dt;
+            
+            Collider* collider = associated.GetComponent<Collider>();
+            if (collider != nullptr) collider->Update(dt);
+            return; // Sai do Update!
+        } else {
+            isStunned = false; // Acabou o tempo de stun
+            
+            // CORREÇÃO: Garante que o pássaro não vai cair no abismo depois da gravidade do knockback
+            speed.y = -200.0f; 
+        }
+    }
+    
     Animator* animator = associated.GetComponent<Animator>();
     SpriteRenderer* sprite = associated.GetComponent<SpriteRenderer>();
 
@@ -136,4 +156,26 @@ void Enemy::Update(float dt) {
 void Enemy::Render() {}
 void Enemy::NotifyCollision(GameObject& other) {
     // Por enquanto nada, depois colocamos para dar dano no Saruê!
+}
+
+void Enemy::Damage(int damage, Vec2 attackerPos) {
+    // CORREÇÃO: Verifica apenas se o pássaro já não está atordoado
+    if (!isStunned) { 
+        hp -= damage;
+        isStunned = true;
+        damageCooldown.Restart();
+
+        // O Knockback
+        speed.y = -300.0f;
+        if (associated.box.Center().x > attackerPos.x) {
+            speed.x = 300.0f;
+        } else {
+            speed.x = -300.0f;
+        }
+        
+        // Força ele a entrar em modo de recuperação para voltar a voar na altura certa depois do golpe
+        state = RECOVER; 
+        
+        if (hp <= 0) associated.RequestDelete();
+    }
 }

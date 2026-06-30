@@ -12,6 +12,7 @@
 #include "fruit.h"
 #include "gato.h"
 #include "fumaca.h"
+#include "meleeattack.h"
 
 const float GRAVITY = 1500.0f;     
 const float JUMP_FORCE = 700.0f;   
@@ -123,18 +124,19 @@ void Character::Update(float dt) {
             }
         }
         else if (cmd.type == Command::ATTACK) {
-            bool isEnemyBullet = false;
-            GameObject* bulletObj = new GameObject();
-            bulletObj->box.x = associated.box.Center().x;
-            bulletObj->box.y = associated.box.Center().y;
+            float passDirX = cmd.pos.x;
+            
+            // CORREÇÃO: Se não está segurando "A" ou "D", ataca pra onde está virado
+            if (passDirX == 0) {
+                passDirX = isFacingLeft ? -1.0f : 1.0f;
+            }
 
-
-            Bullet* bullet = new Bullet(*bulletObj, 0.0, 1000.0f, 10, 800.0f, isEnemyBullet);
-            bulletObj->AddComponent(bullet);
-            bulletObj->box.x -= bulletObj->box.w / 2.0f;
-            bulletObj->box.y -= bulletObj->box.h / 2.0f;
-
-            Game::GetInstance().GetCurrentState().AddObject(bulletObj);
+            GameObject* attackObj = new GameObject();
+            
+            MeleeAttack* melee = new MeleeAttack(*attackObj, Game::GetInstance().GetCurrentState().GetObjectPtr(&associated), passDirX, cmd.pos.y);
+            
+            attackObj->AddComponent(melee);
+            Game::GetInstance().GetCurrentState().AddObject(attackObj);
         }
         else if (cmd.type == Command::DASH && !isPlayingDead) {
             if(!isDashing && dashCooldown.Get() > DASH_COOLDOWN_TIME){
