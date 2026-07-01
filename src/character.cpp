@@ -185,13 +185,17 @@ void Character::Update(float dt) {
     // Limites laterais da tela/mapa
     if (associated.box.x < 0) associated.box.x = 0;
 
+    /* codigo antigo de chao fixo
     float groundLevel = 700.0f; 
     
     if (associated.box.y + associated.box.h >= groundLevel) { 
         associated.box.y = groundLevel - associated.box.h;
         speed.y = 0;
         isGrounded = true; 
-    }
+    }*/
+    
+    isGrounded = true; 
+    speed.y = 0;
     
     bool isMoving = (speed.x != 0);
 

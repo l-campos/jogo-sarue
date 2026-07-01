@@ -4,6 +4,9 @@
 #include "tilemap.h"
 #include "gameobject.h"
 #include "camera.h"
+#include "json.hpp" // Biblioteca mágica para ler o JSON
+
+using json = nlohmann::json;
 
 TileMap::TileMap(GameObject& associated, std::string file, TileSet* tileSet) 
     : Component(associated) {
@@ -14,23 +17,51 @@ TileMap::TileMap(GameObject& associated, std::string file, TileSet* tileSet)
 void TileMap::Load(std::string file) {
     std::ifstream f(file);
     
-    if (f.is_open()) {
-        std::string item;
-        
-        if (std::getline(f, item, ',')) mapWidth = std::stoi(item);
-        if (std::getline(f, item, ',')) mapHeight = std::stoi(item);
-        if (std::getline(f, item, ',')) mapDepth = std::stoi(item);
-        
-        while (std::getline(f, item, ',')) {
-            try {
-                tileMatrix.push_back(std::stoi(item)); 
-            } catch (...) {}
-        }
-        f.close();
-    } else {
-        std::cerr << "Erro: Nao foi possivel abrir o arquivo: " << file << std::endl;
+    if (!f.is_open()) {
+        printf("Erro Crítico: Nao foi possivel abrir o arquivo de mapa JSON em: %s\n", file.c_str());
+        return;
     }
+
+    // O json.hpp faz o parse do arquivo inteiro automaticamente
+    json mapJson;
+    try {
+        f >> mapJson;
+    } catch (json::parse_error& e) {
+        printf("Erro ao ler a sintaxe do JSON: %s\n", e.what());
+        return;
+    }
+
+    // Resgata a largura e a altura do mapa (em quantidade de blocos)
+    mapWidth = mapJson["width"];
+    mapHeight = mapJson["height"];
+    
+    // Zera a profundidade (camadas) antes de contar
+    mapDepth = 0;
+
+    // Limpa a matriz antiga do jogo para não acumular lixo na memória
+    tileMatrix.clear();
+
+    // Varre todas as camadas que o designer criou no Tiled
+    for (auto& layer : mapJson["layers"]) {
+        // Nós só queremos camadas de blocos (tilelayer). 
+        // Se o designer criou camadas de imagem ou de objetos, o código vai ignorar com segurança.
+        if (layer["type"] == "tilelayer") {
+            mapDepth++;
+            
+            // O vetor "data" contém todos os IDs de cada quadradinho do mapa
+            for (int tileID : layer["data"]) {
+                // REGRA CRÍTICA DO TILED: 
+                // No Tiled, o pixel vazio é salvo como 0, e os blocos começam em 1, 2, 3...
+                // Na arquitetura da sua disciplina, o vazio costuma ser -1 e os blocos começam em 0, 1, 2...
+                // Por isso, subtraímos 1 do ID que vem do arquivo para casar perfeitamente!
+                tileMatrix.push_back(tileID - 1);
+            }
+        }
+    }
+
+    printf("Mapa carregado com Sucesso! Dimensoes: %dx%d | Camadas: %d\n", mapWidth, mapHeight, mapDepth);
 }
+
 void TileMap::SetTileSet(TileSet* tileSet) {
     this->tileSet.reset(tileSet);
 }

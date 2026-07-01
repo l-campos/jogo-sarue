@@ -26,48 +26,64 @@
 #include "spawner.h"
 
 StageState::StageState() {
+    // Escolha qual fase quer carregar mudando esta variável para testes (1 ou 2)
+    int faseAtual = 2; 
 
-                        /*BACKGROUND*/
+    /* 1. BACKGROUND (O fundo que se repete) */
     GameObject* bgObject = new GameObject();
-    bgObject->box.x = 0; 
-    bgObject->box.y = 250; // Mantenha a altura que você já tinha configurado para alinhar o chão
-    
-    // Adiciona o nosso novo componente de looping
-    FundoInfinito* fundo = new FundoInfinito(*bgObject, "img/fundo2.jpg");
-    bgObject->AddComponent(fundo);
-    
-    
+    bgObject->box.y = 0; // Ajusta este valor se a imagem ficar muito alta/baixa no ecrã
 
-                        /*CHARACTER*/
+    FundoInfinito* fundo = nullptr;
+
+    if (faseAtual == 1) {
+        // Carrega o fundo da Fase 1
+        fundo = new FundoInfinito(*bgObject, "map/fase1/bg1fase1.png");
+    } else {
+        // Carrega o fundo da Fase 2
+        fundo = new FundoInfinito(*bgObject, "map/fase2/bg3Fase2.png");
+    }
+
+    bgObject->AddComponent(fundo);
+    AddObject(bgObject);
+
+
+    /* 2. MAPA DE TILES (Carregamento Dinâmico via JSON) */
+    GameObject* mapObject = new GameObject();
+    TileSet* tileSet = nullptr;
+    TileMap* tileMap = nullptr;
+
+    if (faseAtual == 1) {
+        // Carrega as artes e o arquivo da Fase 1
+        tileSet = new TileSet(32, 32, "map/fase1/tileset1.png");
+        tileMap = new TileMap(*mapObject, "map/fase1/SarueSagafase1.tmj", tileSet);
+    } else {
+        // Carrega as artes e o arquivo da Fase 2
+        tileSet = new TileSet(32, 32, "map/fase2/tileset2.png");
+        tileMap = new TileMap(*mapObject, "map/fase2/SarueSagafase2.tmj", tileSet);
+    }
+
+    mapObject->AddComponent(tileMap);
+    AddObject(mapObject);
+
+
+    /* 3. ENTIDADES (Saruê, HUD e Gerenciadores) */
     GameObject* playerObject = new GameObject();
-    playerObject->box.x = 100;
-    playerObject->box.y = 0;
+    playerObject->box.x = 200;
+    playerObject->box.y = 100; // Nasce um pouco mais alto para cair no mapa
     Character* playerCharacter = new Character(*playerObject, "img/Player.png");
     playerObject->AddComponent(playerCharacter);
 
-                        /*CONTROLLER*/
     PlayerController* playerController = new PlayerController(*playerObject);
     playerObject->AddComponent(playerController);
+    AddObject(playerObject);
 
-                        /*INIMIGOS*/
-    GameObject* spawnerObj = new GameObject();
-    Spawner* gerador = new Spawner(*spawnerObj);
-    spawnerObj->AddComponent(gerador);
+    // Sistema de Câmera seguindo o Saruê através do novo mapa imenso
+    Camera::Follow(playerObject);
 
     GameObject* hudObject = new GameObject();
     HUD* hudUI = new HUD(*hudObject);
     hudObject->AddComponent(hudUI);
-
-    GameObject* gatoObject = new GameObject();
-    Gato* gato = new Gato(*gatoObject, 800.0f, 450.0f);
-    gatoObject->AddComponent(gato);
-    
-    Camera::Follow(playerObject);
-    AddObject(bgObject);
-    AddObject(playerObject);
     AddObject(hudObject);
-    AddObject(gatoObject);
-    AddObject(spawnerObj);
 }
 
 StageState::~StageState() {}
@@ -127,14 +143,7 @@ void StageState::Update(float dt){
 }
 
 void StageState::Render() {
-
-    std::sort(objectArray.begin(), objectArray.end(), 
-        [](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b) {
-            return a->box.y < b->box.y; 
-        }
-    );
-
-    RenderArray();
+    RenderArray(); // Isso vai renderizar o Fundo, depois o Mapa, depois o Saruê na ordem certa!
 }
 
 void StageState::Pause() {}
