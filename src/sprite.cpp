@@ -12,11 +12,13 @@ using namespace std;
 
 Sprite::Sprite() 
     : texture(nullptr), width(0), height(0), 
-      frameCountW(1), frameCountH(1), cameraFollower(false), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {}
+      frameCountW(1), frameCountH(1), manualFrameW(0), manualFrameH(0),
+      cameraFollower(false), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {}
 
 Sprite::Sprite(string file, int frameCountW, int frameCountH) 
     : texture(nullptr), width(0), height(0), 
-    frameCountW(frameCountW), frameCountH(frameCountH), cameraFollower(false), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {
+    frameCountW(frameCountW), frameCountH(frameCountH), manualFrameW(0), manualFrameH(0),
+    cameraFollower(false), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {
     Open(file);
 }
 
@@ -70,8 +72,10 @@ void Sprite::Render(int x, int y, int w, int h, float angle) {
 }
 
 void Sprite::SetFrame(int frame) {
-    int frameW = width / frameCountW;
-    int frameH = height / frameCountH;
+    // NOVO: usa o tamanho manual se foi definido via SetFrameSize(); senão,
+    // cai no cálculo automático de sempre (largura_total / frameCountW).
+    int frameW = (manualFrameW > 0) ? manualFrameW : width / frameCountW;
+    int frameH = (manualFrameH > 0) ? manualFrameH : height / frameCountH;
     int frameX = (frame % frameCountW) * frameW;
     int frameY = (frame / frameCountW) * frameH;
     SetClip(frameX, frameY, frameW, frameH);
@@ -80,6 +84,12 @@ void Sprite::SetFrame(int frame) {
 void Sprite::SetFrameCount(int frameCountW, int frameCountH) {
     this->frameCountW = frameCountW;
     this->frameCountH = frameCountH;
+}
+
+void Sprite::SetFrameSize(int frameW, int frameH) {
+    manualFrameW = frameW;
+    manualFrameH = frameH;
+    SetFrame(0); // Reaplica o clip já com o tamanho novo
 }
 
 void Sprite::SetScale(float scaleX, float scaleY) {
@@ -96,11 +106,13 @@ void Sprite::SetFlip(SDL_RendererFlip flip) {
 }
 
 int Sprite::GetWidth() {
-    return (width/frameCountW) * scale.x;
+    int frameW = (manualFrameW > 0) ? manualFrameW : width / frameCountW;
+    return frameW * scale.x;
 }
 
 int Sprite::GetHeight() {
-    return (height/frameCountH) * scale.y;
+    int frameH = (manualFrameH > 0) ? manualFrameH : height / frameCountH;
+    return frameH * scale.y;
 }
 
 Vec2 Sprite::GetScale() {

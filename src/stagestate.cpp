@@ -42,7 +42,7 @@ StageState::StageState() {
     GameObject* playerObject = new GameObject();
     playerObject->box.x = 100;
     playerObject->box.y = 0;
-    Character* playerCharacter = new Character(*playerObject, "img/Player.png");
+    Character* playerCharacter = new Character(*playerObject, "img/personagem.png");
     playerObject->AddComponent(playerCharacter);
 
                         /*CONTROLLER*/

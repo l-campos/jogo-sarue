@@ -14,6 +14,8 @@ public:
     void Render() override;
     void NotifyCollision(GameObject& other) override;
 
+    void Damage(int damage, Vec2 attackerPos);
+
 private:
     // A Máquina de Estados do Gato
     enum GatoState { PATROL, CHASE, JUMP, ATTACK, COOLDOWN };
@@ -27,6 +29,9 @@ private:
     
     bool isGrounded;
     float groundLevel;
+
+    Timer damageCooldown;
+    bool isStunned;
 };
 
 #endif

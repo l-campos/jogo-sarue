@@ -9,6 +9,7 @@
 TitleState::TitleState(){
     GameObject* titleObject = new GameObject();
     SpriteRenderer* titleSprite = new SpriteRenderer(*titleObject, "img/Title.png");
+    titleSprite->SetScale(3.75, 4.689);
     titleObject->AddComponent(titleSprite);
     AddObject(titleObject);
 

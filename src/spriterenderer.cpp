@@ -18,6 +18,15 @@ void SpriteRenderer::SetFrameCount(int frameCountW, int frameCountH) {
     sprite.SetFrameCount(frameCountW, frameCountH);
 }
 
+void SpriteRenderer::SetFrameSize(int frameW, int frameH) {
+    sprite.SetFrameSize(frameW, frameH);
+    // Recalcula a caixa de colisão/renderização com o tamanho de célula certo
+    // (senão o Collider continua usando a largura/altura erradas calculadas
+    // automaticamente no construtor).
+    associated.box.w = sprite.GetWidth();
+    associated.box.h = sprite.GetHeight();
+}
+
 void SpriteRenderer::SetCameraFollower(bool follower) {
     sprite.SetCameraFollower(follower);
 }

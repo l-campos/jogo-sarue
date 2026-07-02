@@ -16,17 +16,37 @@ void PlayerController::Update(float dt) {
     if (input.IsKeyDown(SDLK_a) || input.IsKeyDown(LEFT_ARROW_KEY)) direction.x = -1;
     if (input.IsKeyDown(SDLK_d) || input.IsKeyDown(RIGHT_ARROW_KEY)) direction.x = 1;
 
-    character->Issue(Character::Command{Character::Command::MOVE, direction.x, 0});
+    // NOVO: eixo vertical, usado só quando o Character está no modo escalada
+    // (isScaling) — fora do cipó, o Character ignora esse valor no MOVE.
+    if (input.IsKeyDown(SDLK_w) || input.IsKeyDown(UP_ARROW_KEY)) direction.y = -1;
+    if (input.IsKeyDown(SDLK_s) || input.IsKeyDown(DOWN_ARROW_KEY)) direction.y = 1;
+
+    character->Issue(Character::Command{Character::Command::MOVE, direction.x, direction.y});
 
     
+    /* Ataque a distancia com projeteis
     if (input.MousePress(LEFT_MOUSE_BUTTON)) {
         float mouseX = input.GetMouseX() + Camera::pos.x;
         float mouseY = input.GetMouseY() + Camera::pos.y;
 
         character->Issue(Character::Command{Character::Command::ATTACK, mouseX, mouseY});
-    }
+    }*/
 
-    if (input.KeyPress(SPACE_KEY) || input.KeyPress(UP_ARROW_KEY)) {
+    if (input.MousePress(LEFT_MOUSE_BUTTON)) {
+        // Verifica se o jogador está segurando 'W' para atacar para cima
+        float attackDirY = 0;
+        if (input.IsKeyDown(SDLK_w)) {
+            attackDirY = -1; // -1 indica direção para cima no nosso sistema
+        }
+
+        // CORREÇÃO: Passamos a direção exata da tecla, quem decide o lado parado é o Character
+        character->Issue(Character::Command{Character::Command::ATTACK, direction.x, attackDirY});
+    }
+    // CORREÇÃO: JUMP agora só no SPACE. Antes também disparava com
+    // UP_ARROW_KEY, mas essa tecla virou o input de "subir" no cipó — se
+    // deixasse os dois, apertar pra cima durante a escalada chutaria o
+    // saruê pra fora da vinha sem querer.
+    if (input.KeyPress(SPACE_KEY)) {
         character->Issue(Character::Command{Character::Command::JUMP, 0, 0});
     }
 

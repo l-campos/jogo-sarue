@@ -19,7 +19,6 @@ std::shared_ptr<SDL_Texture> Resources::GetImage(std::string file) {
         return nullptr;
     }
 
-    // Criando o shared_ptr com a função lambda de destruição
     std::shared_ptr<SDL_Texture> sharedTex(texture, [](SDL_Texture* t) { SDL_DestroyTexture(t); });
     imageTable.emplace(file, sharedTex);
     
@@ -28,7 +27,7 @@ std::shared_ptr<SDL_Texture> Resources::GetImage(std::string file) {
 
 void Resources::ClearImages() {
     for (auto it = imageTable.begin(); it != imageTable.end(); ) {
-        if (it->second.use_count() == 1) { // Só a Resources conhece? Então apaga!
+        if (it->second.use_count() == 1) { 
             it = imageTable.erase(it);
         } else {
             it++;

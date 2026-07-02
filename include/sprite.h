@@ -20,6 +20,15 @@ public:
     
     void SetFrame(int frame);
     void SetFrameCount(int frameCountW, int frameCountH);
+
+    // NOVO: força um tamanho de célula fixo (em pixels) em vez de deixar o
+    // Sprite calcular largura/frameCountW automaticamente. Necessário quando a
+    // spritesheet tem espaço extra (ex.: um frame que extrapola o grid, como a
+    // cauda no "fingindo de morto"), porque nesses casos largura_total/colunas
+    // não bate com o tamanho real de cada célula e os frames ficam
+    // recortados torto (indo desalinhando mais a cada frame).
+    void SetFrameSize(int frameW, int frameH);
+
     void SetScale(float scaleX, float scaleY);
     Vec2 GetScale();
     void SetFlip(SDL_RendererFlip flip);
@@ -37,6 +46,10 @@ private:
     int height;
     int frameCountW;
     int frameCountH;
+
+    // NOVO: se > 0, tem prioridade sobre o cálculo automático (width/frameCountW).
+    int manualFrameW;
+    int manualFrameH;
     
     bool cameraFollower; 
     

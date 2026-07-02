@@ -46,11 +46,24 @@ private:
     Timer damageCooldown;
     Timer dashTimer;
     Timer dashCooldown;
+
+    // NOVO: controla por quanto tempo a animação de mordida (linha 5) fica travada na tela,
+    // já que o comando ATTACK só dispara um GameObject separado (MeleeAttack) e não tinha
+    // nenhum jeito de avisar o Character "estou mordendo agora".
+    Timer attackTimer;
     
     bool isGrounded;
     bool isPlayingDead;
     bool isDashing;
     bool isFacingLeft;
+    bool isAttacking;
+    bool isBagging;
+    bool isScaling;
+    bool isHanging;
+
+    // NOVO: true só no primeiro frame em que hp chega a 0, pra aplicar o "impulso" inicial
+    // da queda de morte (estilo Mario/Kirby) uma única vez.
+    bool isDying;
 };
 
 #endif
