@@ -1,0 +1,69 @@
+#ifndef CHARACTER_H
+#define CHARACTER_H
+
+#include <queue>
+#include <memory>
+#include <string>
+#include "component.h"
+#include "timer.h"
+#include "vec2.h"
+
+
+class Character : public Component {
+public:
+    Character(GameObject& associated, std::string sprite);
+    ~Character();
+
+    void Start() override;
+    void Update(float dt) override;
+    void Render() override;
+
+    class Command {
+    public:
+        enum CommandType { MOVE, JUMP, PLAY_DEAD, ATTACK, DASH }; 
+        Command(CommandType type, float x, float y) : type(type), pos(x, y) {}    
+        CommandType type;
+        Vec2 pos;
+    };
+    
+    void Issue(Command task);
+    static Character* player;
+    Vec2 GetPosition();
+    
+    bool IsPlayingDead();
+    int GetHP();    
+
+private:
+    std::weak_ptr<GameObject> gun;
+    std::queue<Command> taskQueue;
+    
+    Vec2 speed;
+    int hp;
+    float linearSpeed;
+    void NotifyCollision(GameObject& other) override;
+    
+    Timer deathTimer;
+    Timer damageCooldown;
+    Timer dashTimer;
+    Timer dashCooldown;
+
+    // NOVO: controla por quanto tempo a animação de mordida (linha 5) fica travada na tela,
+    // já que o comando ATTACK só dispara um GameObject separado (MeleeAttack) e não tinha
+    // nenhum jeito de avisar o Character "estou mordendo agora".
+    Timer attackTimer;
+    
+    bool isGrounded;
+    bool isPlayingDead;
+    bool isDashing;
+    bool isFacingLeft;
+    bool isAttacking;
+    bool isBagging;
+    bool isScaling;
+    bool isHanging;
+
+    // NOVO: true só no primeiro frame em que hp chega a 0, pra aplicar o "impulso" inicial
+    // da queda de morte (estilo Mario/Kirby) uma única vez.
+    bool isDying;
+};
+
+#endif
