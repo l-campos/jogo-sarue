@@ -128,15 +128,19 @@ int TileMap::GetDepth() {
 void TileMap::Update(float dt) {}
 
 bool TileMap::IsSolid(int gridX, int gridY) {
-    // Se o personagem tentar sair do limite do mapa, bate em uma parede invisível
-    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) return true;
+    // 1. Paredes invisíveis nas laterais (não deixa fugir do mapa pela esquerda/direita)
+    if (gridX < 0 || gridX >= mapWidth) return true;
+
+    // 2. Teto livre: Se pular acima do mapa, é "ar" (permite subir em plataformas altas)
+    if (gridY < 0) return false;
+
+    // 3. Fundo livre: Se cair abaixo do mapa, é "ar" (permite cair e morrer no abismo)
+    if (gridY >= mapHeight) return false;
 
     // Varre TODAS as camadas (z) do mapa procurando por blocos desenhados
     for (int z = 0; z < mapDepth; ++z) {
         
-        // Dica futura: Se você não quiser que a "água" (camada 3) ou as 
-        // "escadas" (camada 2) se comportem como parede dura de colidir,
-        // você pode ignorar o índice delas aqui. Exemplo:
+        // Ignora colisões com escadas (camada 2) e água (camada 3) se desejar
         // if (z == 2 || z == 3) continue;
 
         int index = At(gridX, gridY, z);

@@ -2,7 +2,9 @@
 #include "camera.h"
 #include <cmath>
 
-FundoInfinito::FundoInfinito(GameObject& associated, std::string file) : Component(associated) {
+// Inicializa a variável no construtor
+FundoInfinito::FundoInfinito(GameObject& associated, std::string file, float parallaxFactor) 
+    : Component(associated), parallaxFactor(parallaxFactor) {
     sprite = new Sprite(file);
 }
 
@@ -10,35 +12,30 @@ FundoInfinito::~FundoInfinito() {
     delete sprite;
 }
 
-void FundoInfinito::Update(float dt) {
-    // Não precisa de atualizar físicas
-}
+void FundoInfinito::Update(float dt) {}
 
 void FundoInfinito::Render() {
     int width = sprite->GetWidth();
     if (width <= 0) return;
 
-    // FATOR DE PARALLAX (Dica para o futuro):
-    // 1.0f = Move-se como o chão normal (Ideal para o seu placeholder atual)
-    // 0.5f = Move-se lentamente (Ideal para montanhas no fundo)
-    // 0.0f = Estático no ecrã (Ideal para nuvens distantes ou céu)
-    float parallaxFactor = 1.0f;
-
-    // Descobre onde a câmara está baseada no parallax
+    // PARALLAX HORIZONTAL: Cada camada usa seu próprio fator individual
     float camX = Camera::pos.x * parallaxFactor;
-
-    // Descobre em qual "bloco" infinito a câmara está agora
     int startBloco = std::floor(camX / width);
 
-    // Desenha o bloco atual e os dois próximos para garantir que preenchemos a tela toda
+    // PARALLAX VERTICAL: Todas as camadas usam o MESMO fator para não se separarem!
+    // Fator 1.0f = Move exatamente junto com o chão
+    // Fator 0.0f = Fica totalmente travado na tela
+    // Fator 0.2f = Fundo sobe e desce um pouquinho quando você pula, mas todas as camadas juntas.
+    float fatorY = 0.2f; 
+    float camY = Camera::pos.y * fatorY;
+
     for (int i = 0; i < 5; i++) {
-        // A posição do bloco no "Mundo Falso"
         float renderX = (startBloco + i) * width;
-        
-        // A compensação matemática para o SDL desenhar no lugar exato do mundo real
         float worldX = renderX + (Camera::pos.x - camX);
-        float worldY = associated.box.y;
         
+        // Todas as imagens agora vão obedecer a mesma regra de subida/descida:
+        float worldY = associated.box.y + (Camera::pos.y - camY); 
+
         sprite->Render(worldX, worldY);
     }
 }

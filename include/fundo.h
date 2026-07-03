@@ -6,7 +6,7 @@
 
 class FundoInfinito : public Component {
 public:
-    FundoInfinito(GameObject& associated, std::string file);
+    FundoInfinito(GameObject& associated, std::string file, float parallaxFactor);
     ~FundoInfinito();
 
     void Update(float dt) override;
@@ -14,6 +14,6 @@ public:
 
 private:
     Sprite* sprite;
+    float parallaxFactor; // Guarda a velocidade relativa desta camada
 };
-
 #endif

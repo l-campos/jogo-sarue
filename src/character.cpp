@@ -15,7 +15,7 @@
 #include "meleeattack.h"
 
 const float GRAVITY = 1500.0f;
-const float JUMP_FORCE = 1400.0f;
+const float JUMP_FORCE = 700.0f;
 const float MOVE_SPEED = 300.0f;
 const float MAX_FALL_SPEED = 800.0f;
 const float DASH_SPEED = 1000.0f; // Velocidade do avanço
