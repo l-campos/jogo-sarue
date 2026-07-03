@@ -75,6 +75,8 @@ Game::Game(string title, int width, int height) {
         cerr << "Erro ao criar renderizador: " << SDL_GetError() << endl;
     }
 
+    SDL_RenderSetLogicalSize(renderer, 800, 600);
+
     storedState = nullptr;
 
     srand(time(NULL));

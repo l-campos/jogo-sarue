@@ -20,6 +20,9 @@ InputManager::~InputManager() {}
 void InputManager::Update() {
     SDL_Event event;
     SDL_GetMouseState(&mouseX, &mouseY);
+    mouseX /= 1.5f;  // Ajuste para a escala da tela lógica
+    mouseY /= 1.5f;  // Ajuste para a escala da tela lógica
+    
     quitRequested = false;
     updateCounter++;
 

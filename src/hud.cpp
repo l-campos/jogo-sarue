@@ -3,7 +3,8 @@
 #include "camera.h"
 
 HUD::HUD(GameObject& associated) : Component(associated){
-    lifeIcon = new Sprite("img/vida.jpg");
+    lifeIcon = new Sprite("img/vida.png");
+    lifeIcon->SetScale(0.2f, 0.2f);
 }
 
 HUD::~HUD() {

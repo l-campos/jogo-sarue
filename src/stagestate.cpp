@@ -31,7 +31,7 @@ StageState::StageState() {
 
     /* 1. BACKGROUNDS (Parallax de 4 Camadas) */
     // Quanto maior o valor, mais para BAIXO a imagem vai ficar na tela.
-    float alturaFundo = 250.0f; 
+    float alturaFundo = 200.0f; 
 
     // Camada 1: Céu
     GameObject* bg1 = new GameObject();
@@ -42,13 +42,13 @@ StageState::StageState() {
     // Camada 2: Construções/Montanhas distantes
     GameObject* bg2 = new GameObject();
     bg2->box.y = alturaFundo;
-    bg2->AddComponent(new FundoInfinito(*bg2, "map/fase2/bg3Fase2.png", 0.3f));
+    bg2->AddComponent(new FundoInfinito(*bg2, "map/fase2/bg3Fase2.png", 0.6f));
     AddObject(bg2);
 
     // Camada 3: Árvores do meio
     GameObject* bg3 = new GameObject();
     bg3->box.y = alturaFundo;
-    bg3->AddComponent(new FundoInfinito(*bg3, "map/fase2/bg2Fase2.png", 0.6f));
+    bg3->AddComponent(new FundoInfinito(*bg3, "map/fase2/bg2Fase2.png", 0.3f));
     AddObject(bg3);
 
     // Camada 4: Árvores da frente

@@ -15,8 +15,8 @@ void Camera::Unfollow() {
 
 void Camera::Update(float dt) {
     if (focus != nullptr) {
-        pos.x = focus->box.Center().x - 600.0f; // Metade da tela (1200)
-        pos.y = focus->box.Center().y - 450.0f; // Metade da tela (900)
+        pos.x = focus->box.Center().x - 400.0f; // Metade de 600 (tela lógica)
+        pos.y = focus->box.Center().y - 300.0f; // Metade de 450 (tela lógica)
     } else if (focus == nullptr) {
         InputManager& input = InputManager::GetInstance();
 

@@ -21,8 +21,8 @@ void Spawner::Update(float dt) {
 
     State& state = Game::GetInstance().GetCurrentState();
 
-    // Posição X: Nasce sempre à direita da tela (ex: 1200 pixels à frente da câmera)
-    float spawnX = Camera::pos.x + 1200.0f; 
+    // Posição X: Nasce sempre à direita da tela (ex: 850 pixels à frente da câmera)
+    float spawnX = Camera::pos.x + 850.0f;
 
     // 1. SPAWN DO POMBO
     if (pomboTimer.Get() > pomboCooldown) {
