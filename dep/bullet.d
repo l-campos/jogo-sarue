@@ -287,8 +287,8 @@ dep/bullet.d bin/bullet.o: src/bullet.cpp /usr/include/stdc-predef.h \
  include/character.h /usr/include/c++/13/queue /usr/include/c++/13/deque \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
  /usr/include/c++/13/bits/stl_heap.h /usr/include/c++/13/bits/stl_queue.h \
- include/timer.h include/zombie.h include/sound.h \
- /usr/include/SDL2/SDL_mixer.h include/aicontroller.h
+ include/timer.h include/tilemap.h include/tileset.h include/zombie.h \
+ include/sound.h /usr/include/SDL2/SDL_mixer.h include/aicontroller.h
 /usr/include/stdc-predef.h:
 include/bullet.h:
 include/component.h:
@@ -648,6 +648,8 @@ include/character.h:
 /usr/include/c++/13/bits/stl_heap.h:
 /usr/include/c++/13/bits/stl_queue.h:
 include/timer.h:
+include/tilemap.h:
+include/tileset.h:
 include/zombie.h:
 include/sound.h:
 /usr/include/SDL2/SDL_mixer.h:

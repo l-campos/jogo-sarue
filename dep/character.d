@@ -149,8 +149,8 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
  /usr/include/c++/13/bits/charconv.h \
  /usr/include/c++/13/bits/basic_string.tcc include/component.h \
- include/timer.h include/vec2.h include/spriterenderer.h include/sprite.h \
- include/SDL_include.h /usr/include/SDL2/SDL.h \
+ include/timer.h include/vec2.h include/tilemap.h include/tileset.h \
+ include/sprite.h include/SDL_include.h /usr/include/SDL2/SDL.h \
  /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
  /usr/include/SDL2/SDL_config.h \
  /usr/include/x86_64-linux-gnu/SDL2/_real_SDL_config.h \
@@ -285,7 +285,7 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h include/camera.h include/gameobject.h \
- include/rect.h include/gun.h include/sound.h \
+ include/rect.h include/spriterenderer.h include/gun.h include/sound.h \
  /usr/include/SDL2/SDL_mixer.h include/game.h /usr/include/c++/13/stack \
  /usr/include/c++/13/bits/stl_stack.h include/gameobject.h \
  include/animator.h /usr/include/c++/13/unordered_map \
@@ -294,10 +294,9 @@ dep/character.d bin/character.o: src/character.cpp \
  /usr/include/c++/13/bits/hashtable_policy.h \
  /usr/include/c++/13/bits/enable_special_members.h \
  /usr/include/c++/13/bits/erase_if.h include/animation.h \
- include/stagestate.h include/music.h include/tilemap.h include/tileset.h \
- include/state.h include/collider.h include/bullet.h include/enemy.h \
- include/sound.h include/fruit.h include/gato.h include/fumaca.h \
- include/meleeattack.h
+ include/stagestate.h include/music.h include/state.h include/collider.h \
+ include/bullet.h include/enemy.h include/sound.h include/fruit.h \
+ include/gato.h include/fumaca.h include/meleeattack.h
 /usr/include/stdc-predef.h:
 include/character.h:
 /usr/include/c++/13/queue:
@@ -486,7 +485,8 @@ include/character.h:
 include/component.h:
 include/timer.h:
 include/vec2.h:
-include/spriterenderer.h:
+include/tilemap.h:
+include/tileset.h:
 include/sprite.h:
 include/SDL_include.h:
 /usr/include/SDL2/SDL.h:
@@ -655,6 +655,7 @@ include/SDL_include.h:
 include/camera.h:
 include/gameobject.h:
 include/rect.h:
+include/spriterenderer.h:
 include/gun.h:
 include/sound.h:
 /usr/include/SDL2/SDL_mixer.h:
@@ -672,8 +673,6 @@ include/animator.h:
 include/animation.h:
 include/stagestate.h:
 include/music.h:
-include/tilemap.h:
-include/tileset.h:
 include/state.h:
 include/collider.h:
 include/bullet.h:

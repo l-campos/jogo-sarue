@@ -31,7 +31,7 @@ void FundoInfinito::Render() {
     int startBloco = std::floor(camX / width);
 
     // Desenha o bloco atual e os dois próximos para garantir que preenchemos a tela toda
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
         // A posição do bloco no "Mundo Falso"
         float renderX = (startBloco + i) * width;
         

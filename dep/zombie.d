@@ -294,7 +294,8 @@ dep/zombie.d bin/zombie.o: src/zombie.cpp /usr/include/stdc-predef.h \
  include/timer.h include/camera.h include/collider.h include/bullet.h \
  include/character.h /usr/include/c++/13/queue /usr/include/c++/13/deque \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
- /usr/include/c++/13/bits/stl_heap.h /usr/include/c++/13/bits/stl_queue.h
+ /usr/include/c++/13/bits/stl_heap.h /usr/include/c++/13/bits/stl_queue.h \
+ include/tilemap.h include/tileset.h
 /usr/include/stdc-predef.h:
 include/zombie.h:
 include/component.h:
@@ -669,3 +670,5 @@ include/character.h:
 /usr/include/c++/13/bits/deque.tcc:
 /usr/include/c++/13/bits/stl_heap.h:
 /usr/include/c++/13/bits/stl_queue.h:
+include/tilemap.h:
+include/tileset.h:

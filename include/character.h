@@ -7,11 +7,11 @@
 #include "component.h"
 #include "timer.h"
 #include "vec2.h"
-
+#include "tilemap.h"
 
 class Character : public Component {
 public:
-    Character(GameObject& associated, std::string sprite);
+    Character(GameObject& associated, std::string sprite, TileMap* map = nullptr);
     ~Character();
 
     void Start() override;
@@ -51,6 +51,8 @@ private:
     bool isPlayingDead;
     bool isDashing;
     bool isFacingLeft;
+
+    TileMap* map;
 };
 
 #endif

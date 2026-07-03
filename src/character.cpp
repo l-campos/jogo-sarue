@@ -14,9 +14,9 @@
 #include "fumaca.h"
 #include "meleeattack.h"
 
-const float GRAVITY = 1500.0f;     
-const float JUMP_FORCE = 700.0f;   
-const float MOVE_SPEED = 300.0f;   
+const float GRAVITY = 1500.0f;
+const float JUMP_FORCE = 1400.0f;
+const float MOVE_SPEED = 300.0f;
 const float MAX_FALL_SPEED = 800.0f;
 const float DASH_SPEED = 1000.0f; // Velocidade do avanço
 const float DASH_TIME = 0.2f;     // Duração do avanço
@@ -24,8 +24,8 @@ const float DASH_COOLDOWN_TIME = 0.5f; // Tempo para poder usar de novo
 
 Character* Character::player = nullptr;
 
-Character::Character(GameObject& associated, std::string sprite) 
-    : Component(associated), hp(100), linearSpeed(300.0f), isGrounded(false), isDashing(false), isFacingLeft(false) {
+Character::Character(GameObject& associated, std::string sprite, TileMap* map)
+    : Component(associated), hp(100), linearSpeed(300.0f), isGrounded(false), isDashing(false), isFacingLeft(false), map(map) {
     
     player = this;
 
@@ -173,30 +173,91 @@ void Character::Update(float dt) {
     }
 
     speed.y += GRAVITY * dt;
-    if (speed.y > MAX_FALL_SPEED) speed.y = MAX_FALL_SPEED;
-
-    if (speed.x != 0 || speed.y != 0) {
-        associated.box.x += speed.x * dt;
-        associated.box.y += speed.y * dt;
+    
+    // CORREÇÃO 3: Limitando a velocidade máxima de queda para evitar "tunelamento"
+    if (speed.y > MAX_FALL_SPEED) {
+        speed.y = MAX_FALL_SPEED;
     }
 
-    isGrounded = false;
-    
-    // Limites laterais da tela/mapa
-    if (associated.box.x < 0) associated.box.x = 0;
+    // CAPTURA A CAIXA REAL DE COLISÃO
+    Collider* collider = associated.GetComponent<Collider>();
+    Rect hitbox = (collider != nullptr) ? collider->box : associated.box;
 
-    /* codigo antigo de chao fixo
-    float groundLevel = 700.0f; 
-    
-    if (associated.box.y + associated.box.h >= groundLevel) { 
-        associated.box.y = groundLevel - associated.box.h;
-        speed.y = 0;
-        isGrounded = true; 
-    }*/
-    
-    isGrounded = true; 
-    speed.y = 0;
-    
+    // ----- 1. MOVIMENTO E COLISÃO NO EIXO X -----
+    associated.box.x += speed.x * dt;
+    hitbox.x += speed.x * dt; // Simula onde a hitbox vai estar
+
+    if (map != nullptr) {
+        int left = std::floor(hitbox.x / 32.0f);
+        int right = std::floor((hitbox.x + hitbox.w - 1.0f) / 32.0f);
+        int top = std::floor(hitbox.y / 32.0f);
+        int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / 32.0f);
+
+        bool collisionX = false;
+        if (speed.x > 0) { // Andando para a direita
+            // CORREÇÃO 2: Checa todos os tiles da cabeça aos pés
+            for (int y = top; y <= bottom; ++y) {
+                if (map->IsSolid(right, y)) { collisionX = true; break; }
+            }
+            if (collisionX) {
+                float diferencaHitbox = hitbox.x - associated.box.x;
+                associated.box.x = (right * 32.0f) - hitbox.w - diferencaHitbox - 0.1f;
+                hitbox.x = associated.box.x + diferencaHitbox; // CORREÇÃO 1: Sincroniza a hitbox
+            }
+        } else if (speed.x < 0) { // Andando para a esquerda
+            for (int y = top; y <= bottom; ++y) {
+                if (map->IsSolid(left, y)) { collisionX = true; break; }
+            }
+            if (collisionX) {
+                float diferencaHitbox = hitbox.x - associated.box.x;
+                associated.box.x = (left * 32.0f) + 32.0f - diferencaHitbox + 0.1f;
+                hitbox.x = associated.box.x + diferencaHitbox; // CORREÇÃO 1: Sincroniza a hitbox
+            }
+        }
+    }
+
+    // ----- 2. MOVIMENTO E COLISÃO NO EIXO Y -----
+    associated.box.y += speed.y * dt;
+    hitbox.y += speed.y * dt;
+    isGrounded = false;
+
+    if (map != nullptr) {
+        // Recalcula após o movimento no X (a hitbox agora está no lugar certo)
+        int left = std::floor(hitbox.x / 32.0f);
+        int right = std::floor((hitbox.x + hitbox.w - 1.0f) / 32.0f);
+        int top = std::floor(hitbox.y / 32.0f);
+        int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / 32.0f);
+
+        bool collisionY = false;
+        if (speed.y > 0) { // A cair
+            // CORREÇÃO 2: Checa todos os tiles da esquerda à direita da hitbox
+            for (int x = left; x <= right; ++x) {
+                if (map->IsSolid(x, bottom)) { collisionY = true; break; }
+            }
+            if (collisionY) {
+                float diferencaHitbox = hitbox.y - associated.box.y;
+                associated.box.y = (bottom * 32.0f) - hitbox.h - diferencaHitbox - 0.1f;
+                hitbox.y = associated.box.y + diferencaHitbox; // CORREÇÃO 1
+                speed.y = 0;
+                isGrounded = true;
+            }
+        } else if (speed.y < 0) { // A saltar e a bater com a cabeça
+            for (int x = left; x <= right; ++x) {
+                if (map->IsSolid(x, top)) { collisionY = true; break; }
+            }
+            if (collisionY) {
+                float diferencaHitbox = hitbox.y - associated.box.y;
+                associated.box.y = (top * 32.0f) + 32.0f - diferencaHitbox + 0.1f;
+                hitbox.y = associated.box.y + diferencaHitbox; // CORREÇÃO 1
+                speed.y = 0;
+            }
+        }
+    }
+
+    if (associated.box.y > 10000.0f) { // Caiu muito no abismo (ajuste o valor se seu mapa for muito fundo)
+        hp = 0; // O Saruê morre
+    }
+
     bool isMoving = (speed.x != 0);
 
     if (animator) {
@@ -210,7 +271,6 @@ void Character::Update(float dt) {
         }
     }
 
-    Collider* collider = associated.GetComponent<Collider>();
     if (collider != nullptr) {
         collider->Update(dt);
     }

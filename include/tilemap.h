@@ -24,6 +24,8 @@ public:
     int GetHeight();
     int GetDepth();
 
+    bool IsSolid(int gridX, int gridY);
+
 private:
     std::vector<int> tileMatrix;
     std::unique_ptr<TileSet> tileSet; 

@@ -73,25 +73,21 @@ int& TileMap::At(int x, int y, int z) {
 }
 
 void TileMap::RenderLayer(int layer) {
-    if (!tileSet) return; 
-    
+    // Puxamos as dimensões dos blocos do nosso TileSet (normalmente 32x32)
     int tileW = tileSet->GetTileWidth();
     int tileH = tileSet->GetTileHeight();
 
-    float parallaxFactor = 1.0f + (layer * 0.1f);
-    
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            
-            int tileIndex = At(x, y, layer);
-            
-            int actualTile = tileIndex; 
-            
-            if (actualTile >= 0) {
-                float posX = (x * tileW) + associated.box.x - Camera::pos.x * parallaxFactor; 
-                float posY = (y * tileH) + associated.box.y - Camera::pos.y * parallaxFactor; 
-                
-                tileSet->RenderTile((unsigned)actualTile, posX, posY);
+    for (int y = 0; y < mapHeight; ++y) {
+        for (int x = 0; x < mapWidth; ++x) {
+            int index = At(x, y, layer);
+
+            if (index >= 0) {
+                // CORREÇÃO CRÍTICA: Subtraímos APENAS a Camera::pos, sem multiplicar pela camada!
+                // O std::round ajuda a evitar "tremidelas" nos blocos se a câmara usar números decimais.
+                float renderX = (x * tileW) - std::round(Camera::pos.x);
+                float renderY = (y * tileH) - std::round(Camera::pos.y);
+
+                tileSet->RenderTile(index, renderX, renderY);
             }
         }
     }
@@ -116,3 +112,14 @@ int TileMap::GetDepth() {
 }
 
 void TileMap::Update(float dt) {}
+
+bool TileMap::IsSolid(int gridX, int gridY) {
+    // Se o personagem tentar sair do limite do mapa, bate em uma parede invisível
+    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) return true; 
+    
+    // A Camada 0 (z=0) é a camada das Paredes/Chão.
+    int index = At(gridX, gridY, 0); 
+    
+    // Se tiver qualquer bloco desenhado ali (index >= 0), é sólido!
+    return (index >= 0);
+}

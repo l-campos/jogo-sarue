@@ -173,9 +173,8 @@ dep/aicontroller.d bin/aicontroller.o: src/aicontroller.cpp \
  /usr/include/c++/13/vector /usr/include/c++/13/bits/stl_vector.h \
  /usr/include/c++/13/bits/stl_bvector.h \
  /usr/include/c++/13/bits/vector.tcc /usr/include/c++/13/bits/stl_heap.h \
- /usr/include/c++/13/bits/stl_queue.h include/game.h \
- /usr/include/c++/13/stack /usr/include/c++/13/bits/stl_stack.h \
- /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
+ /usr/include/c++/13/bits/stl_queue.h include/tilemap.h include/tileset.h \
+ include/sprite.h /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
  /usr/include/SDL2/SDL_assert.h /usr/include/SDL2/SDL_clipboard.h \
  /usr/include/SDL2/SDL_cpuinfo.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/immintrin.h \
@@ -288,11 +287,11 @@ dep/aicontroller.d bin/aicontroller.o: src/aicontroller.cpp \
  /usr/include/SDL2/SDL_render.h /usr/include/SDL2/SDL_shape.h \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- include/gameobject.h include/rect.h include/bullet.h \
- include/stagestate.h include/sprite.h include/camera.h \
- include/gameobject.h include/music.h include/tilemap.h include/tileset.h \
- include/state.h include/spriterenderer.h include/animator.h \
- /usr/include/c++/13/unordered_map \
+ include/camera.h include/gameobject.h include/rect.h include/game.h \
+ /usr/include/c++/13/stack /usr/include/c++/13/bits/stl_stack.h \
+ include/gameobject.h include/bullet.h include/stagestate.h \
+ include/music.h include/state.h include/spriterenderer.h \
+ include/animator.h /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \
  /usr/include/c++/13/bits/hashtable.h \
  /usr/include/c++/13/bits/hashtable_policy.h \
@@ -523,9 +522,9 @@ include/character.h:
 /usr/include/c++/13/bits/vector.tcc:
 /usr/include/c++/13/bits/stl_heap.h:
 /usr/include/c++/13/bits/stl_queue.h:
-include/game.h:
-/usr/include/c++/13/stack:
-/usr/include/c++/13/bits/stl_stack.h:
+include/tilemap.h:
+include/tileset.h:
+include/sprite.h:
 /usr/include/SDL2/SDL.h:
 /usr/include/SDL2/SDL_main.h:
 /usr/include/SDL2/SDL_assert.h:
@@ -657,16 +656,16 @@ include/game.h:
 /usr/include/SDL2/SDL_timer.h:
 /usr/include/SDL2/SDL_locale.h:
 /usr/include/SDL2/SDL_misc.h:
-include/gameobject.h:
-include/rect.h:
-include/bullet.h:
-include/stagestate.h:
-include/sprite.h:
 include/camera.h:
 include/gameobject.h:
+include/rect.h:
+include/game.h:
+/usr/include/c++/13/stack:
+/usr/include/c++/13/bits/stl_stack.h:
+include/gameobject.h:
+include/bullet.h:
+include/stagestate.h:
 include/music.h:
-include/tilemap.h:
-include/tileset.h:
 include/state.h:
 include/spriterenderer.h:
 include/animator.h:

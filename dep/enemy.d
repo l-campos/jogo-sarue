@@ -159,10 +159,10 @@ dep/enemy.d bin/enemy.o: src/enemy.cpp /usr/include/stdc-predef.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
  /usr/include/c++/13/bits/charconv.h \
- /usr/include/c++/13/bits/basic_string.tcc include/spriterenderer.h \
- include/sprite.h include/SDL_include.h /usr/include/SDL2/SDL.h \
- /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
- /usr/include/SDL2/SDL_config.h \
+ /usr/include/c++/13/bits/basic_string.tcc include/tilemap.h \
+ include/tileset.h include/sprite.h include/SDL_include.h \
+ /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
+ /usr/include/SDL2/SDL_stdinc.h /usr/include/SDL2/SDL_config.h \
  /usr/include/x86_64-linux-gnu/SDL2/_real_SDL_config.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/begin_code.h \
  /usr/include/SDL2/close_code.h /usr/include/c++/13/stdlib.h \
@@ -286,7 +286,8 @@ dep/enemy.d bin/enemy.o: src/enemy.cpp /usr/include/stdc-predef.h \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h include/camera.h include/gameobject.h \
- include/rect.h include/animator.h /usr/include/c++/13/unordered_map \
+ include/rect.h include/spriterenderer.h include/animator.h \
+ /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \
  /usr/include/c++/13/bits/hashtable.h \
  /usr/include/c++/13/bits/hashtable_policy.h \
@@ -493,7 +494,8 @@ include/character.h:
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 /usr/include/c++/13/bits/charconv.h:
 /usr/include/c++/13/bits/basic_string.tcc:
-include/spriterenderer.h:
+include/tilemap.h:
+include/tileset.h:
 include/sprite.h:
 include/SDL_include.h:
 /usr/include/SDL2/SDL.h:
@@ -651,6 +653,7 @@ include/SDL_include.h:
 include/camera.h:
 include/gameobject.h:
 include/rect.h:
+include/spriterenderer.h:
 include/animator.h:
 /usr/include/c++/13/unordered_map:
 /usr/include/c++/13/bits/unordered_map.h:

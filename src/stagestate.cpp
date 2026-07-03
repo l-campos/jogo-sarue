@@ -27,40 +27,33 @@
 
 StageState::StageState() {
     // Escolha qual fase quer carregar mudando esta variável para testes (1 ou 2)
-    int faseAtual = 2; 
+    //int faseAtual = 2; 
 
     /* 1. BACKGROUND (O fundo que se repete) */
     GameObject* bgObject = new GameObject();
-    bgObject->box.y = 0; // Ajusta este valor se a imagem ficar muito alta/baixa no ecrã
+    bgObject->box.y = 200.0f; // Ajusta este valor se a imagem ficar muito alta/baixa no ecrã
 
     FundoInfinito* fundo = nullptr;
 
-    if (faseAtual == 1) {
+    /*if (faseAtual == 1) {
         // Carrega o fundo da Fase 1
         fundo = new FundoInfinito(*bgObject, "map/fase1/bg1fase1.png");
     } else {
         // Carrega o fundo da Fase 2
         fundo = new FundoInfinito(*bgObject, "map/fase2/bg3Fase2.png");
-    }
-
+    }*/
+    
+    // Carrega o fundo da Fase 2
+    fundo = new FundoInfinito(*bgObject, "map/fase2/bg4Fase2.png");
+    
     bgObject->AddComponent(fundo);
     AddObject(bgObject);
 
 
     /* 2. MAPA DE TILES (Carregamento Dinâmico via JSON) */
     GameObject* mapObject = new GameObject();
-    TileSet* tileSet = nullptr;
-    TileMap* tileMap = nullptr;
-
-    if (faseAtual == 1) {
-        // Carrega as artes e o arquivo da Fase 1
-        tileSet = new TileSet(32, 32, "map/fase1/tileset1.png");
-        tileMap = new TileMap(*mapObject, "map/fase1/SarueSagafase1.tmj", tileSet);
-    } else {
-        // Carrega as artes e o arquivo da Fase 2
-        tileSet = new TileSet(32, 32, "map/fase2/tileset2.png");
-        tileMap = new TileMap(*mapObject, "map/fase2/SarueSagafase2.tmj", tileSet);
-    }
+    TileSet* tileSet = new TileSet(32, 32, "map/fase2/tileset2.png");
+    TileMap* tileMap = new TileMap(*mapObject, "map/fase2/SarueSagafase2.tmj", tileSet);
 
     mapObject->AddComponent(tileMap);
     AddObject(mapObject);
@@ -68,9 +61,10 @@ StageState::StageState() {
 
     /* 3. ENTIDADES (Saruê, HUD e Gerenciadores) */
     GameObject* playerObject = new GameObject();
-    playerObject->box.x = 200;
+
+    playerObject->box.x = 400.0f;
     playerObject->box.y = 100; // Nasce um pouco mais alto para cair no mapa
-    Character* playerCharacter = new Character(*playerObject, "img/Player.png");
+    Character* playerCharacter = new Character(*playerObject, "img/Player.png", tileMap);
     playerObject->AddComponent(playerCharacter);
 
     PlayerController* playerController = new PlayerController(*playerObject);
