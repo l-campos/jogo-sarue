@@ -65,6 +65,7 @@ Game::Game(string title, int width, int height) {
         height, 
         0
     );
+
     if (window == nullptr) {
         cerr << "Erro ao criar janela: " << SDL_GetError() << endl;
     }
@@ -120,11 +121,11 @@ float Game::GetDeltaTime() {
 
 void Game::Run() {
     if (storedState == nullptr) return;
-    
+
     stateStack.push(std::unique_ptr<State>(storedState));
     stateStack.top()->Start();
     storedState = nullptr;
-    
+
     while (!stateStack.empty() && !stateStack.top()->QuitRequested()) {
         if (stateStack.top()->PopRequested()) {
             stateStack.pop();
@@ -146,11 +147,19 @@ void Game::Run() {
             cout << "Nenhum estado ativo. Encerrando o jogo." << endl;
             break;
         }
-    
+
         CalculateDeltaTime();
         InputManager::GetInstance().Update();
-        
+
         stateStack.top()->Update(GetDeltaTime());
+        // limpeza da imagem anterior
+        // 1. Define a cor de limpeza. RGBA (0, 0, 0, 255) é Preto. 
+        // (135, 206, 235, 255)
+        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255); 
+
+        // 2. Apaga o quadro do frame anterior pintando tudo com a cor acima
+        SDL_RenderClear(renderer);
+
         stateStack.top()->Render();
 
         SDL_RenderPresent(renderer);

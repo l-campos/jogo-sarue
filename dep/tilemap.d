@@ -341,7 +341,10 @@ dep/tilemap.d bin/tilemap.o: src/tilemap.cpp /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/time_members.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/messages_members.h \
  /usr/include/libintl.h /usr/include/c++/13/bits/locale_facets_nonio.tcc \
- /usr/include/c++/13/bits/locale_conv.h
+ /usr/include/c++/13/bits/locale_conv.h include/game.h \
+ /usr/include/c++/13/stack /usr/include/c++/13/deque \
+ /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
+ /usr/include/c++/13/bits/stl_stack.h
 /usr/include/stdc-predef.h:
 /usr/include/c++/13/fstream:
 /usr/include/c++/13/bits/requires_hosted.h:
@@ -780,3 +783,9 @@ include/json.hpp:
 /usr/include/libintl.h:
 /usr/include/c++/13/bits/locale_facets_nonio.tcc:
 /usr/include/c++/13/bits/locale_conv.h:
+include/game.h:
+/usr/include/c++/13/stack:
+/usr/include/c++/13/deque:
+/usr/include/c++/13/bits/stl_deque.h:
+/usr/include/c++/13/bits/deque.tcc:
+/usr/include/c++/13/bits/stl_stack.h:

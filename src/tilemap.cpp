@@ -4,7 +4,8 @@
 #include "tilemap.h"
 #include "gameobject.h"
 #include "camera.h"
-#include "json.hpp" // Biblioteca mágica para ler o JSON
+#include "json.hpp" // Biblioteca para ler o JSON
+#include "game.h"
 
 using json = nlohmann::json;
 
@@ -73,7 +74,6 @@ int& TileMap::At(int x, int y, int z) {
 }
 
 void TileMap::RenderLayer(int layer) {
-    // Puxamos as dimensões dos blocos do nosso TileSet (normalmente 32x32)
     int tileW = tileSet->GetTileWidth();
     int tileH = tileSet->GetTileHeight();
 
@@ -82,12 +82,26 @@ void TileMap::RenderLayer(int layer) {
             int index = At(x, y, layer);
 
             if (index >= 0) {
-                // CORREÇÃO CRÍTICA: Subtraímos APENAS a Camera::pos, sem multiplicar pela camada!
-                // O std::round ajuda a evitar "tremidelas" nos blocos se a câmara usar números decimais.
-                float renderX = (x * tileW) - std::round(Camera::pos.x);
-                float renderY = (y * tileH) - std::round(Camera::pos.y);
+                // Posição PURA do bloco no mundo (sem subtrair a câmera)
+                float worldX = x * tileW;
+                float worldY = y * tileH;
 
-                tileSet->RenderTile(index, renderX, renderY);
+                // O Sprite::Render já subtrai a câmera automaticamente lá dentro!
+                tileSet->RenderTile(index, worldX, worldY);
+
+                // --- INÍCIO DO BLOCO DE DEBUG ---
+#ifdef DEBUG
+                // Como o SDL_RenderDrawRect pinta os quadrados de depuração direto 
+                // na tela (não passa pela classe Sprite), AQUI NÓS PRECISAMOS 
+                // subtrair a câmera manualmente para as linhas verdes baterem com as imagens.
+                SDL_Rect tileRect = {(int)(worldX - Camera::pos.x), 
+                                     (int)(worldY - Camera::pos.y), 
+                                     tileW, tileH};
+                
+                SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 0, 255, 0, SDL_ALPHA_OPAQUE);
+                SDL_RenderDrawRect(Game::GetInstance().GetRenderer(), &tileRect);
+#endif
+                // --- FIM DO BLOCO DE DEBUG ---
             }
         }
     }
@@ -115,11 +129,24 @@ void TileMap::Update(float dt) {}
 
 bool TileMap::IsSolid(int gridX, int gridY) {
     // Se o personagem tentar sair do limite do mapa, bate em uma parede invisível
-    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) return true; 
+    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) return true;
+
+    // Varre TODAS as camadas (z) do mapa procurando por blocos desenhados
+    for (int z = 0; z < mapDepth; ++z) {
+        
+        // Dica futura: Se você não quiser que a "água" (camada 3) ou as 
+        // "escadas" (camada 2) se comportem como parede dura de colidir,
+        // você pode ignorar o índice delas aqui. Exemplo:
+        // if (z == 2 || z == 3) continue;
+
+        int index = At(gridX, gridY, z);
+        
+        // Se tiver qualquer bloco desenhado nesta camada, é sólido!
+        if (index >= 0) {
+            return true;
+        }
+    }
     
-    // A Camada 0 (z=0) é a camada das Paredes/Chão.
-    int index = At(gridX, gridY, 0); 
-    
-    // Se tiver qualquer bloco desenhado ali (index >= 0), é sólido!
-    return (index >= 0);
+    // Se olhou todas as camadas e não tinha nada desenhado, então é ar (caminhável)
+    return false;
 }
