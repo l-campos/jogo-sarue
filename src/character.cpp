@@ -106,7 +106,7 @@ Character::Character(GameObject& associated, std::string sprite)
     // com a cauda extrapolando; o último frame (35) fica com uns pixels da
     // cauda cortados pela SetFrameSize(32,32) — ver observação no topo do chat
     // sobre as 3 opções pra resolver isso definitivamente se incomodar.
-    animator->AddAnimation("play", Animation(SF(8, 0), SF(8, 3), 0.25f));
+    animator->AddAnimation("play", Animation(SF(8, 3), SF(8, 3), 0.25f));
 
     // Linha 10 (índice 9): Pendurado — só 1 pose desenhada (frame 36)
     animator->AddAnimation("pendura", Animation(SF(9, 0), SF(9, 0), 0.15f));
