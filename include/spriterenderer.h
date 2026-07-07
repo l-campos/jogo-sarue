@@ -12,6 +12,12 @@ public:
     void Open(std::string file);
     void SetFrameCount(int frameCountW, int frameCountH);
     void SetFrame(int frame);
+
+    // NOVO: repassa pro Sprite interno. Use quando a largura/altura total da
+    // spritesheet não divide certinho por frameCountW/frameCountH (ex.: sobrou
+    // espaço extra pra um frame que extrapola o grid).
+    void SetFrameSize(int frameW, int frameH);
+
     void SetCameraFollower(bool follower);
     
     void SetScale(float scaleX, float scaleY);

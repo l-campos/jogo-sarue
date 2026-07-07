@@ -290,9 +290,7 @@ dep/meleeattack.d bin/meleeattack.o: src/meleeattack.cpp \
  /usr/include/c++/13/bits/hashtable_policy.h \
  /usr/include/c++/13/bits/enable_special_members.h \
  /usr/include/c++/13/bits/erase_if.h include/animation.h \
- include/collider.h include/zombie.h include/sound.h \
- /usr/include/SDL2/SDL_mixer.h include/aicontroller.h include/enemy.h \
- include/gato.h
+ include/collider.h include/enemy.h include/gato.h
 /usr/include/stdc-predef.h:
 include/meleeattack.h:
 include/component.h:
@@ -653,9 +651,5 @@ include/animator.h:
 /usr/include/c++/13/bits/erase_if.h:
 include/animation.h:
 include/collider.h:
-include/zombie.h:
-include/sound.h:
-/usr/include/SDL2/SDL_mixer.h:
-include/aicontroller.h:
 include/enemy.h:
 include/gato.h:

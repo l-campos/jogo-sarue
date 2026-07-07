@@ -289,9 +289,9 @@ dep/stagestate.d bin/stagestate.o: src/stagestate.cpp \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
  include/camera.h include/gameobject.h include/rect.h include/vec2.h \
  include/music.h include/tilemap.h include/component.h include/tileset.h \
- include/state.h include/spriterenderer.h include/zombie.h \
- include/sound.h include/timer.h include/tilemap.h include/tileset.h \
- include/inputmanager.h /usr/include/c++/13/unordered_map \
+ include/state.h include/spriterenderer.h include/tilemap.h \
+ include/tileset.h include/inputmanager.h \
+ /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \
  /usr/include/c++/13/bits/hashtable.h \
  /usr/include/c++/13/bits/hashtable_policy.h \
@@ -299,12 +299,12 @@ dep/stagestate.d bin/stagestate.o: src/stagestate.cpp \
  /usr/include/c++/13/bits/erase_if.h include/camera.h include/character.h \
  /usr/include/c++/13/queue /usr/include/c++/13/deque \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
- /usr/include/c++/13/bits/stl_queue.h include/playercontroller.h \
- include/character.h include/collision.h include/collider.h \
- include/aicontroller.h include/gamedata.h include/endstate.h \
- include/enemy.h include/game.h /usr/include/c++/13/stack \
+ /usr/include/c++/13/bits/stl_queue.h include/timer.h \
+ include/playercontroller.h include/character.h include/collision.h \
+ include/collider.h include/gamedata.h include/endstate.h include/enemy.h \
+ include/game.h /usr/include/c++/13/stack \
  /usr/include/c++/13/bits/stl_stack.h include/fruit.h include/hud.h \
- include/gato.h include/fundo.h include/spawner.h
+ include/gato.h include/spawner.h include/parallaxbg.h
 /usr/include/stdc-predef.h:
 /usr/include/c++/13/algorithm:
 /usr/include/c++/13/bits/stl_algobase.h:
@@ -666,9 +666,6 @@ include/component.h:
 include/tileset.h:
 include/state.h:
 include/spriterenderer.h:
-include/zombie.h:
-include/sound.h:
-include/timer.h:
 include/tilemap.h:
 include/tileset.h:
 include/inputmanager.h:
@@ -685,11 +682,11 @@ include/character.h:
 /usr/include/c++/13/bits/stl_deque.h:
 /usr/include/c++/13/bits/deque.tcc:
 /usr/include/c++/13/bits/stl_queue.h:
+include/timer.h:
 include/playercontroller.h:
 include/character.h:
 include/collision.h:
 include/collider.h:
-include/aicontroller.h:
 include/gamedata.h:
 include/endstate.h:
 include/enemy.h:
@@ -699,5 +696,5 @@ include/game.h:
 include/fruit.h:
 include/hud.h:
 include/gato.h:
-include/fundo.h:
 include/spawner.h:
+include/parallaxbg.h:

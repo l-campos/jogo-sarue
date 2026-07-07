@@ -6,7 +6,8 @@
 
 class FundoInfinito : public Component {
 public:
-    FundoInfinito(GameObject& associated, std::string file);
+    // Garanta que a assinatura aqui tenha os novos parâmetros!
+    FundoInfinito(GameObject& associated, std::string file, float parallaxFactor, float scaleX = 1.0f, float scaleY = 1.0f);
     ~FundoInfinito();
 
     void Update(float dt) override;
@@ -14,6 +15,7 @@ public:
 
 private:
     Sprite* sprite;
+    float parallaxFactor;
 };
 
 #endif

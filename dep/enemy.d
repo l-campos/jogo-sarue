@@ -93,24 +93,48 @@ dep/enemy.d bin/enemy.o: src/enemy.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/13/bits/hash_bytes.h \
  /usr/include/c++/13/bits/vector.tcc /usr/include/c++/13/bits/stl_heap.h \
  /usr/include/c++/13/bits/stl_queue.h \
- /usr/include/c++/13/bits/uses_allocator.h /usr/include/c++/13/memory \
- /usr/include/c++/13/bits/stl_tempbuf.h \
- /usr/include/c++/13/bits/stl_raw_storage_iter.h \
- /usr/include/c++/13/bits/align.h /usr/include/c++/13/bit \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
+ /usr/include/c++/13/bits/uses_allocator.h /usr/include/c++/13/string \
+ /usr/include/c++/13/bits/stringfwd.h \
+ /usr/include/c++/13/bits/char_traits.h \
+ /usr/include/c++/13/bits/postypes.h /usr/include/c++/13/cwchar \
+ /usr/include/wchar.h /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/include/c++/13/bits/unique_ptr.h /usr/include/c++/13/tuple \
- /usr/include/c++/13/bits/shared_ptr.h /usr/include/c++/13/iosfwd \
- /usr/include/c++/13/bits/stringfwd.h /usr/include/c++/13/bits/postypes.h \
- /usr/include/c++/13/cwchar /usr/include/wchar.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/c++/13/bits/localefwd.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h \
+ /usr/include/c++/13/clocale /usr/include/locale.h \
+ /usr/include/x86_64-linux-gnu/bits/locale.h /usr/include/c++/13/iosfwd \
+ /usr/include/c++/13/cctype /usr/include/ctype.h \
+ /usr/include/c++/13/bits/ostream_insert.h \
+ /usr/include/c++/13/bits/cxxabi_forced.h \
+ /usr/include/c++/13/bits/basic_string.h \
+ /usr/include/c++/13/ext/string_conversions.h /usr/include/c++/13/cstdlib \
+ /usr/include/c++/13/cstdio /usr/include/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/c++/13/cerrno /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/x86_64-linux-gnu/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
+ /usr/include/c++/13/bits/charconv.h \
+ /usr/include/c++/13/bits/basic_string.tcc include/spriterenderer.h \
+ include/sprite.h /usr/include/c++/13/memory \
+ /usr/include/c++/13/bits/stl_tempbuf.h \
+ /usr/include/c++/13/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/13/bits/align.h /usr/include/c++/13/bit \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
+ /usr/include/c++/13/bits/unique_ptr.h /usr/include/c++/13/tuple \
+ /usr/include/c++/13/bits/shared_ptr.h \
  /usr/include/c++/13/bits/shared_ptr_base.h /usr/include/c++/13/typeinfo \
  /usr/include/c++/13/bits/allocated_ptr.h \
  /usr/include/c++/13/ext/aligned_buffer.h \
@@ -137,32 +161,9 @@ dep/enemy.d bin/enemy.o: src/enemy.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/13/bits/shared_ptr_atomic.h \
  /usr/include/c++/13/bits/atomic_base.h \
  /usr/include/c++/13/bits/atomic_lockfree_defines.h \
- /usr/include/c++/13/backward/auto_ptr.h /usr/include/c++/13/string \
- /usr/include/c++/13/bits/char_traits.h \
- /usr/include/c++/13/bits/localefwd.h \
- /usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h \
- /usr/include/c++/13/clocale /usr/include/locale.h \
- /usr/include/x86_64-linux-gnu/bits/locale.h /usr/include/c++/13/cctype \
- /usr/include/ctype.h /usr/include/c++/13/bits/ostream_insert.h \
- /usr/include/c++/13/bits/cxxabi_forced.h \
- /usr/include/c++/13/bits/basic_string.h \
- /usr/include/c++/13/ext/string_conversions.h /usr/include/c++/13/cstdlib \
- /usr/include/c++/13/cstdio /usr/include/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
- /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
- /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
- /usr/include/c++/13/cerrno /usr/include/errno.h \
- /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/x86_64-linux-gnu/asm/errno.h \
- /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
- /usr/include/c++/13/bits/charconv.h \
- /usr/include/c++/13/bits/basic_string.tcc include/spriterenderer.h \
- include/sprite.h include/SDL_include.h /usr/include/SDL2/SDL.h \
- /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
- /usr/include/SDL2/SDL_config.h \
+ /usr/include/c++/13/backward/auto_ptr.h include/SDL_include.h \
+ /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
+ /usr/include/SDL2/SDL_stdinc.h /usr/include/SDL2/SDL_config.h \
  /usr/include/x86_64-linux-gnu/SDL2/_real_SDL_config.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/begin_code.h \
  /usr/include/SDL2/close_code.h /usr/include/c++/13/stdlib.h \
@@ -407,6 +408,51 @@ include/character.h:
 /usr/include/c++/13/bits/stl_heap.h:
 /usr/include/c++/13/bits/stl_queue.h:
 /usr/include/c++/13/bits/uses_allocator.h:
+/usr/include/c++/13/string:
+/usr/include/c++/13/bits/stringfwd.h:
+/usr/include/c++/13/bits/char_traits.h:
+/usr/include/c++/13/bits/postypes.h:
+/usr/include/c++/13/cwchar:
+/usr/include/wchar.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
+/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+/usr/include/c++/13/bits/localefwd.h:
+/usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h:
+/usr/include/c++/13/clocale:
+/usr/include/locale.h:
+/usr/include/x86_64-linux-gnu/bits/locale.h:
+/usr/include/c++/13/iosfwd:
+/usr/include/c++/13/cctype:
+/usr/include/ctype.h:
+/usr/include/c++/13/bits/ostream_insert.h:
+/usr/include/c++/13/bits/cxxabi_forced.h:
+/usr/include/c++/13/bits/basic_string.h:
+/usr/include/c++/13/ext/string_conversions.h:
+/usr/include/c++/13/cstdlib:
+/usr/include/c++/13/cstdio:
+/usr/include/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+/usr/include/c++/13/cerrno:
+/usr/include/errno.h:
+/usr/include/x86_64-linux-gnu/bits/errno.h:
+/usr/include/linux/errno.h:
+/usr/include/x86_64-linux-gnu/asm/errno.h:
+/usr/include/asm-generic/errno.h:
+/usr/include/asm-generic/errno-base.h:
+/usr/include/x86_64-linux-gnu/bits/types/error_t.h:
+/usr/include/c++/13/bits/charconv.h:
+/usr/include/c++/13/bits/basic_string.tcc:
+include/spriterenderer.h:
+include/sprite.h:
 /usr/include/c++/13/memory:
 /usr/include/c++/13/bits/stl_tempbuf.h:
 /usr/include/c++/13/bits/stl_raw_storage_iter.h:
@@ -414,23 +460,11 @@ include/character.h:
 /usr/include/c++/13/bit:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
 /usr/include/stdint.h:
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-least.h:
 /usr/include/c++/13/bits/unique_ptr.h:
 /usr/include/c++/13/tuple:
 /usr/include/c++/13/bits/shared_ptr.h:
-/usr/include/c++/13/iosfwd:
-/usr/include/c++/13/bits/stringfwd.h:
-/usr/include/c++/13/bits/postypes.h:
-/usr/include/c++/13/cwchar:
-/usr/include/wchar.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
-/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
-/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
-/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
-/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 /usr/include/c++/13/bits/shared_ptr_base.h:
 /usr/include/c++/13/typeinfo:
 /usr/include/c++/13/bits/allocated_ptr.h:
@@ -462,39 +496,6 @@ include/character.h:
 /usr/include/c++/13/bits/atomic_base.h:
 /usr/include/c++/13/bits/atomic_lockfree_defines.h:
 /usr/include/c++/13/backward/auto_ptr.h:
-/usr/include/c++/13/string:
-/usr/include/c++/13/bits/char_traits.h:
-/usr/include/c++/13/bits/localefwd.h:
-/usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h:
-/usr/include/c++/13/clocale:
-/usr/include/locale.h:
-/usr/include/x86_64-linux-gnu/bits/locale.h:
-/usr/include/c++/13/cctype:
-/usr/include/ctype.h:
-/usr/include/c++/13/bits/ostream_insert.h:
-/usr/include/c++/13/bits/cxxabi_forced.h:
-/usr/include/c++/13/bits/basic_string.h:
-/usr/include/c++/13/ext/string_conversions.h:
-/usr/include/c++/13/cstdlib:
-/usr/include/c++/13/cstdio:
-/usr/include/stdio.h:
-/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
-/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
-/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
-/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
-/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
-/usr/include/c++/13/cerrno:
-/usr/include/errno.h:
-/usr/include/x86_64-linux-gnu/bits/errno.h:
-/usr/include/linux/errno.h:
-/usr/include/x86_64-linux-gnu/asm/errno.h:
-/usr/include/asm-generic/errno.h:
-/usr/include/asm-generic/errno-base.h:
-/usr/include/x86_64-linux-gnu/bits/types/error_t.h:
-/usr/include/c++/13/bits/charconv.h:
-/usr/include/c++/13/bits/basic_string.tcc:
-include/spriterenderer.h:
-include/sprite.h:
 include/SDL_include.h:
 /usr/include/SDL2/SDL.h:
 /usr/include/SDL2/SDL_main.h:

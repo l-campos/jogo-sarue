@@ -2,21 +2,41 @@
 #include "spriterenderer.h"
 #include "animator.h"
 #include "collider.h"
-#include "zombie.h"
-#include "aicontroller.h"
 #include "enemy.h" 
 #include "gato.h"
+// REMOVIDO: #include "zombie.h" e #include "aicontroller.h" — sobra do outro
+// jogo, não são usados em nenhum lugar deste arquivo.
+
+// Precisa bater com os mesmos valores usados em character.cpp (SARUE_COLS /
+// SARUE_ROWS / SARUE_FRAME_SIZE), já que o efeito usa a mesma spritesheet do
+// saruê. Duplicado aqui em vez de compartilhado por header pra manter os dois
+// arquivos independentes — se mudar um, lembre de mudar o outro.
+const int EFFECT_SHEET_COLS = 4;
+const int EFFECT_SHEET_ROWS = 10;
+const int EFFECT_FRAME_SIZE = 32;
+const int EFFECT_ROW = 5; // linha 6 (índice 5) = "efeito do ataque mordida"
 
 MeleeAttack::MeleeAttack(GameObject& associated, std::weak_ptr<GameObject> player, float directionX, float directionY) 
-    : Component(associated), player(player), dirX(directionX), dirY(directionY), damage(50), knockbackForce(150.0f) {
-    
-    // Configura o SpriteRenderer com a arma (3 colunas, 2 linhas = 6 frames)
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/Gun.png", 3, 2);
+    : Component(associated), player(player), dirX(directionX), dirY(directionY), damage(1), knockbackForce(150.0f) {
+    // CORREÇÃO: "damage" estava em 50, mas em NotifyCollision() o dano aplicado
+    // era sempre hardcoded como "1" (passaro->Damage(1, ...)), entao o valor
+    // de 50 nunca era realmente usado — era código morto. Troquei o padrão pra
+    // 1 e fiz NotifyCollision usar esse membro de verdade, pra dar pra ajustar
+    // o dano da mordida num lugar só.
+
+    // Efeito da mordida agora usa os frames 20-23 (linha 6) da própria
+    // spritesheet do saruê, em vez do placeholder "img/Gun.png".
+    // AJUSTAR o nome do arquivo se ele não se chamar "img/personagem.png" nos
+    // assets finais do projeto (é o mesmo caminho usado em stagestate.cpp).
+    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/personagem.png", EFFECT_SHEET_COLS, EFFECT_SHEET_ROWS);
+    sprite->SetFrameSize(EFFECT_FRAME_SIZE, EFFECT_FRAME_SIZE);
     associated.AddComponent(sprite);
 
-    // Configura a animação para durar 0.5 segundos (0.5s / 6 frames = ~0.083f por frame)
+    // 4 frames (20 a 23), tocando rápido dentro da janela de 0.5s do ataque
     Animator* animator = new Animator(associated);
-    animator->AddAnimation("attack", Animation(0, 5, 0.0833f)); 
+    int startFrame = EFFECT_ROW * EFFECT_SHEET_COLS;     // = 20
+    int endFrame = startFrame + 3;                        // = 23
+    animator->AddAnimation("attack", Animation(startFrame, endFrame, 0.0833f)); 
     animator->SetAnimation("attack");
     associated.AddComponent(animator);
 
@@ -34,16 +54,16 @@ void MeleeAttack::Update(float dt) {
         return;
     }
 
-    // Acompanha o movimento do jogador
-    float offsetDistance = 40.0f; // Distância do centro do saruê até o ataque
-
     if (dirY == -1) {
-        // Ataque para cima
+        // Ataque para cima (segurando W): o efeito nasce vertical na
+        // spritesheet, entao aqui giramos 90° pra ficar deitado/horizontal,
+        // como pedido.
         associated.box.x = playerPtr->box.Center().x - (associated.box.w / 2.0f);
         associated.box.y = playerPtr->box.y - associated.box.h;
-        associated.angleDeg = -90.0f; // Rotaciona a sprite para cima
+        associated.angleDeg = 90.0f; // ERA -90; se ficar de cabeça pra baixo, troque pra -90 de novo
     } else {
-        // Ataque para os lados
+        // Ataque para frente (padrão): mantém a orientação vertical natural do
+        // efeito, parecido com o corte vertical do Hollow Knight.
         associated.angleDeg = 0.0f;
         associated.box.y = playerPtr->box.Center().y - (associated.box.h / 2.0f);
 
@@ -81,8 +101,9 @@ void MeleeAttack::NotifyCollision(GameObject& other) {
     if (passaro != nullptr || gato != nullptr) {
         hitEnemies.push_back(&other); // Registra que apanhou
         
-        // Aplica o dano chamando a função que vamos criar em cada um deles
-        if (passaro) passaro->Damage(1, associated.box.Center());
-        if (gato) gato->Damage(1, associated.box.Center());
+        // CORREÇÃO: agora usa o membro "damage" de verdade, em vez do "1"
+        // fixo que ignorava a configuração feita no construtor.
+        if (passaro) passaro->Damage(damage, associated.box.Center());
+        if (gato) gato->Damage(damage, associated.box.Center());
     }
 }

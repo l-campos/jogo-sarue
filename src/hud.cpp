@@ -4,6 +4,7 @@
 
 HUD::HUD(GameObject& associated) : Component(associated){
     lifeIcon = new Sprite("img/vida.jpg");
+    lifeIcon->SetScale(0.5f, 0.5f);
 }
 
 HUD::~HUD() {

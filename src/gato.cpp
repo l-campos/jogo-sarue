@@ -4,7 +4,7 @@
 #include "spriterenderer.h"
 #include "animator.h"
 #include "collider.h"
-#include "bullet.h"
+
 
 const float GRAVITY = 1500.0f;
 const float JUMP_FORCE = 500.0f;   // Força do pulo
@@ -13,18 +13,51 @@ const float CHASE_SPEED = 300.0f;  // Correndo atrás do Saruê
 const float JUMP_RANGE = 200.0f;   // Distância para dar o bote
 const float AGGRO_RANGE = 500.0f;  // Visão do gato
 
+// ============================================================================
+// CONFIGURAÇÃO DA SPRITESHEET DO GATO (gato_spritesheet.png, 455x140px)
+// ============================================================================
+// Analisei a imagem que vocês mandaram: ela tem 3 linhas (correndo / atacando
+// normal / atacando pulando) mas NEM TODAS as linhas têm o mesmo número de
+// poses — a linha de "correndo" parece ter menos frames que as outras duas.
+// Como o motor (Sprite::SetFrame) usa uma largura de célula ÚNICA pra imagem
+// inteira, o numero de colunas usado abaixo (GATO_COLS) precisa ser igual ao
+// da linha com MAIS frames (achei 7), e as linhas mais curtas só usam um
+// intervalo menor de colunas, sobrando células vazias no final — sem problema,
+// elas nunca chegam a ser desenhadas porque o frameEnd da Animation pára antes.
+//
+// Com 455px de largura e 7 colunas, cada frame fica com ~65px de largura.
+// CONFIRA no jogo se as poses estão sendo cortadas — se sim, é sinal de que o
+// numero de colunas real é diferente do que detectei e GATO_COLS precisa mudar.
+const int GATO_COLS = 7; // <-- baseado em análise automática da imagem, confirmar visualmente
+const int GATO_ROWS = 3;
+
+inline int GF(int row, int col) { return row * GATO_COLS + col; }
+
 Gato::Gato(GameObject& associated, float x, float y)
     : Component(associated), state(PATROL), hp(2), startX(x), isGrounded(false), groundLevel(700.0f), isStunned(false) {
     associated.box.x = x;
     associated.box.y = y;
     speed = {PATROL_SPEED, 0};
     
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/NPC.png", 3, 4);
+    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/gato.png", GATO_COLS, GATO_ROWS);
+    sprite->SetScale(4.0f, 4.0f);
     associated.AddComponent(sprite);
 
     Animator* animator = new Animator(associated);
-    animator->AddAnimation("patrol", Animation(6, 9, 0.15f));
-    animator->AddAnimation("attack", Animation(0, 5, 0.15f));
+
+    // Linha 1 (índice 0): correndo — usada em PATROL e CHASE.
+    // AJUSTAR a quantidade real de frames úteis dessa linha (estimei 4 abaixo).
+    animator->AddAnimation("running", Animation(GF(0, 0), GF(0, 3), 0.1f));
+
+    // Linha 2 (índice 1): atacando (normal/no chão) — usada em COOLDOWN, como
+    // uma pose de "respirando"/recolhendo a garra depois do bote.
+    // AJUSTAR quantidade real de frames (estimei 5 abaixo).
+    animator->AddAnimation("attack_ground", Animation(GF(1, 0), GF(1, 5), 0.12f));
+
+    // Linha 3 (índice 2): atacando pulando — usada durante JUMP e ATTACK
+    // (o gato no ar, indo pra cima e descendo com a garra esticada).
+    animator->AddAnimation("attack_jump", Animation(GF(2, 0), GF(2, 6), 0.1f));
+
     associated.AddComponent(animator);
 
     Collider* collider = new Collider(associated);
@@ -55,7 +88,7 @@ void Gato::Update(float dt) {
     }
     if (!isStunned) {
         if (state == PATROL) {
-            if (animator) animator->SetAnimation("patrol");
+            if (animator) animator->SetAnimation("running");
 
             // Vai e volta na área dele
             if (associated.box.x > startX + 150.0f) {
@@ -74,7 +107,7 @@ void Gato::Update(float dt) {
         }
         
         else if (state == CHASE) {
-            if (animator) animator->SetAnimation("attack");
+            if (animator) animator->SetAnimation("running");
 
             if (Character::player != nullptr) {
                 float playerX = Character::player->GetPosition().x;
@@ -98,7 +131,7 @@ void Gato::Update(float dt) {
         }
         
         else if (state == JUMP) {
-            if (animator) animator->SetAnimation("attack");
+            if (animator) animator->SetAnimation("attack_jump");
 
             // Assim que ele atinge o pico do pulo e começa a cair, ele ativa o ataque
             if (speed.y > -100.0f) { 
@@ -109,7 +142,7 @@ void Gato::Update(float dt) {
         }
         
         else if (state == ATTACK) {
-            if (animator) animator->SetAnimation("attack");
+            if (animator) animator->SetAnimation("attack_jump");
             // No ar, ele mantém a inércia do pulo para frente até bater no chão
             
             if (isGrounded) {
@@ -123,7 +156,7 @@ void Gato::Update(float dt) {
         }
         
         else if (state == COOLDOWN) {
-            if (animator) animator->SetAnimation("patrol");
+            if (animator) animator->SetAnimation("attack_ground");
 
             cooldownTimer.Update(dt);
             if (cooldownTimer.Get() > 1.0f) { // Fica 1 segundo parado no chão
@@ -144,13 +177,6 @@ void Gato::Update(float dt) {
 void Gato::Render() {}
 
 void Gato::NotifyCollision(GameObject& other) {
-    if (other.GetComponent<Bullet>() != nullptr) {
-        hp--;
-        other.RequestDelete();
-        if (hp < 0) {
-            associated.RequestDelete();
-        }
-    }
 }
 
 void Gato::Damage(int damage, Vec2 attackerPos) {

@@ -151,6 +151,17 @@ void Game::Run() {
         InputManager::GetInstance().Update();
         
         stateStack.top()->Update(GetDeltaTime());
+
+        // CORRECAO: sem isso, cada frame é desenhado em cima do anterior sem
+        // apagar nada -- o que causava o rastro/fantasma de tudo que se movia
+        // na tela. O bug estava oculto enquanto havia um background (fundo2.jpg)
+        // que cobria toda a tela a cada frame, funcionando como clear acidental.
+        //
+        // A cor aqui é o "céu" da fase -- AJUSTAR para o tom que o designer
+        // quiser (R, G, B, A). Valores atuais: azul claro (135, 206, 235).
+        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255);
+        SDL_RenderClear(renderer);
+
         stateStack.top()->Render();
 
         SDL_RenderPresent(renderer);
