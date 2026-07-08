@@ -42,15 +42,21 @@ void PlayerController::Update(float dt) {
         // CORREÇÃO: Passamos a direção exata da tecla, quem decide o lado parado é o Character
         character->Issue(Character::Command{Character::Command::ATTACK, direction.x, attackDirY});
     }
-    // CORREÇÃO: JUMP agora só no SPACE. Antes também disparava com
-    // UP_ARROW_KEY, mas essa tecla virou o input de "subir" no cipó — se
-    // deixasse os dois, apertar pra cima durante a escalada chutaria o
-    // saruê pra fora da vinha sem querer.
-    if (input.KeyPress(SPACE_KEY)) {
+    // Verifica se está segurando para baixo
+    bool downPressed = input.IsKeyDown(SDLK_s) || input.IsKeyDown(DOWN_ARROW_KEY);
+
+    // DESCER DA PLATAFORMA: Segurando pra baixo + apertou espaço
+    if (downPressed && input.KeyPress(SPACE_KEY)) {
+        character->Issue(Character::Command{Character::Command::DROP_DOWN, 0, 0});
+    } 
+    // PULO NORMAL: Só apertou espaço
+    else if (input.KeyPress(SPACE_KEY)) {
         character->Issue(Character::Command{Character::Command::JUMP, 0, 0});
     }
 
-    if (input.IsKeyDown(SDLK_s) || input.IsKeyDown(DOWN_ARROW_KEY)) {
+    // FINGIR DE MORTO: Segurando pra baixo (isso não interfere no Drop Down, 
+    // pois o Drop tira ele do chão e o Play_Dead exige estar no chão)
+    if (downPressed) {
         character->Issue(Character::Command{Character::Command::PLAY_DEAD, 0, 0});
     }
 

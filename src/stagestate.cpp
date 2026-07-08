@@ -20,75 +20,76 @@
 #include "fruit.h"
 #include "hud.h"
 #include "gato.h"
+#include "fundo.h"
 #include "spawner.h"
-#include "parallaxbg.h"  // NOVO: background em parallax
 
 StageState::StageState() {
+    /* 1. BACKGROUNDS (Parallax usando classe FundoInfinito) */
+    // Como a tela tem 1200x900 e o bg original tem 320x192, precisamos escalar
+    float scaleX = 1200.0f / 320.0f; // 3.75f
+    float scaleY = 900.0f / 192.0f;  // ~4.69f
 
-                        /*BACKGROUND EM PARALLAX*/
-    // O GameObject do background precisa ter box.y muito negativo para que o
-    // sort por box.y em Render() o coloque SEMPRE no fundo (desenhado primeiro,
-    // atrás de tudo). O componente usa cameraFollower=true e posições de tela,
-    // então o valor de box.y não afeta onde aparece visualmente.
-    GameObject* bgObject = new GameObject();
-    bgObject->box.y = -10000.0f;
-    ParallaxBackground* bg = new ParallaxBackground(*bgObject);
-    bgObject->AddComponent(bg);
+    GameObject* bg1 = new GameObject();
+    bg1->AddComponent(new FundoInfinito(*bg1, "map/fase2/bg4fase2.png", 0.05f, scaleX, scaleY));
+    AddObject(bg1);
 
-                        /*TILEMAP (fase 2)*/
-    // AJUSTAR os caminhos para onde os arquivos ficam no projeto.
-    tileSet = new TileSet(32, 32, "img/tileset2.png");
+    GameObject* bg2 = new GameObject();
+    bg2->AddComponent(new FundoInfinito(*bg2, "map/fase2/bg3fase2.png", 0.15f, scaleX, scaleY));
+    AddObject(bg2);
 
+    GameObject* bg3 = new GameObject();
+    bg3->AddComponent(new FundoInfinito(*bg3, "map/fase2/bg2fase2.png", 0.30f, scaleX, scaleY));
+    AddObject(bg3);
+
+
+    GameObject* bg4 = new GameObject();
+    bg4->box.y = 50.0f; // Ajuste vertical para a camada da frente
+    bg4->AddComponent(new FundoInfinito(*bg4, "map/fase2/bg1fase2.png", 0.50f, scaleX, scaleY));
+    AddObject(bg4);
+
+    /* 2. MAPA DE TILES (Carregamento Dinâmico via JSON) */
     GameObject* mapObject = new GameObject();
     mapObject->box.x = 0;
     mapObject->box.y = 0;
-    tileMap = new TileMap(*mapObject, "map/fase2.tmj", tileSet);
+    
+    tileSet = new TileSet(32, 32, "map/fase2/tileset2.png");
+    
+    // A escala pertence ao TileSet, não ao TileMap!
+    tileSet->SetScale(4.0f);
+    
+    tileMap = new TileMap(*mapObject, "map/fase2/fase2.tmj", tileSet);
+    
     mapObject->AddComponent(tileMap);
+    AddObject(mapObject);
 
-    // ESCALA DO MAPA: padrão é 2x (definido em tileset.cpp).
-    // Para aumentar ou diminuir, descomente e ajuste o valor abaixo.
-    // Afeta render E colisão automaticamente — um único número controla tudo.
-    tileMap->SetScale(4.0f); // 3x: tiles de 96px
-
-                        /*CHARACTER*/
+    /* 3. ENTIDADES (Saruê) */
     GameObject* playerObject = new GameObject();
-    // Posiciona o player em coordenadas de TILE, não de pixel fixo.
-    // Razão: o pixel de mundo correspondente a cada tile muda com a escala.
-    // Com escala 2x, tileToPixelX(2) ≈ 513px. Com 3x ≈ 770px. Ao usar
-    // TileToPixelX, o spawn sempre cai dentro do mapa independente da escala,
-    // evitando que o player nasça à esquerda de todos os tiles e caia para sempre.
-    playerObject->box.x = tileMap->TileToPixelX(2); // coluna 2 do grid de tiles
-    playerObject->box.y = 0;                         // cai até o primeiro tile sólido
-    Character* playerCharacter = new Character(*playerObject, "img/personagem.png");
+
+    // Para nascer na coluna 2, basta multiplicar pelo tamanho real do tile
+    playerObject->box.x = 2 * tileSet->GetTileWidth(); 
+    playerObject->box.y = 0; // Cai até o primeiro tile sólido
+
+    // Usando o sprite que foi dimensionou em Character.cpp
+    Character* playerCharacter = new Character(*playerObject, "img/personagem.png", tileMap);
     playerObject->AddComponent(playerCharacter);
 
-                        /*CONTROLLER*/
     PlayerController* playerController = new PlayerController(*playerObject);
     playerObject->AddComponent(playerController);
+    AddObject(playerObject);
 
-                        /*INIMIGOS*/
+    /* 4. INIMIGOS E ITENS (Recuperado: Mantém a IA gerando os inimigos) */
     GameObject* spawnerObj = new GameObject();
     Spawner* gerador = new Spawner(*spawnerObj);
     spawnerObj->AddComponent(gerador);
+    AddObject(spawnerObj);
 
-                        /*HUD*/
+    /* 5. HUD E CÂMERA */
+    Camera::Follow(playerObject);
+
     GameObject* hudObject = new GameObject();
     HUD* hudUI = new HUD(*hudObject);
     hudObject->AddComponent(hudUI);
-
-    Camera::Follow(playerObject);
-
-    // Ordem de AddObject reflete a ordem padrão de render (antes do sort).
-    // Como Render() faz sort por box.y, o que importa é o valor de box.y:
-    //   bgObject:    -10000  → renderiza primeiro (fundo)
-    //   mapObject:       0   → renderiza antes do player
-    //   playerObject: ~430   → renderiza na posição do mundo
-    //   hudObject:       0   → renderiza junto ao mapa (usa coordenadas de tela)
-    AddObject(bgObject);
-    AddObject(mapObject);
     AddObject(hudObject);
-    AddObject(playerObject);
-    AddObject(spawnerObj);
 }
 
 StageState::~StageState() {}
@@ -102,14 +103,16 @@ void StageState::LoadAssets() {}
 
 void StageState::Update(float dt) {
     InputManager& input = InputManager::GetInstance();
-
-    if (input.QuitRequested())  quitRequested = true;
+    
+    if (input.QuitRequested()) {
+        quitRequested = true;
+    }
 
     if (input.KeyPress(ESCAPE_KEY)) {
         popRequested = true;
         backgroundMusic.Stop(0);
     }
-
+    
     UpdateArray(dt);
 
     if (Character::player == nullptr) {
@@ -120,12 +123,14 @@ void StageState::Update(float dt) {
 
     for (unsigned i = 0; i < objectArray.size(); i++) {
         for (unsigned j = i + 1; j < objectArray.size(); j++) {
-            Collider* ca = objectArray[i]->GetComponent<Collider>();
-            Collider* cb = objectArray[j]->GetComponent<Collider>();
-            if (ca && cb) {
-                float angA = objectArray[i]->angleDeg * (M_PI / 180.0f);
-                float angB = objectArray[j]->angleDeg * (M_PI / 180.0f);
-                if (Collision::IsColliding(ca->box, cb->box, angA, angB)) {
+            Collider* colliderA = objectArray[i]->GetComponent<Collider>();
+            Collider* colliderB = objectArray[j]->GetComponent<Collider>();
+            
+            if (colliderA != nullptr && colliderB != nullptr) {
+                float angleA = objectArray[i]->angleDeg * (M_PI / 180.0f);
+                float angleB = objectArray[j]->angleDeg * (M_PI / 180.0f);
+
+                if (Collision::IsColliding(colliderA->box, colliderB->box, angleA, angleB)) {
                     objectArray[i]->NotifyCollision(*objectArray[j]);
                     objectArray[j]->NotifyCollision(*objectArray[i]);
                 }
@@ -139,20 +144,14 @@ void StageState::Update(float dt) {
             i--;
         }
     }
-
+    
     Camera::Update(dt);
 }
 
 void StageState::Render() {
-    // Ordena por box.y: objetos mais acima (y menor) renderizam primeiro (atrás).
-    // O bgObject (-10000) sempre fica no fundo; o player (y~430) na frente do mapa.
-    std::sort(objectArray.begin(), objectArray.end(),
-        [](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b) {
-            return a->box.y < b->box.y;
-        }
-    );
-    RenderArray();
+    RenderArray(); 
 }
 
-void StageState::Pause()  {}
+void StageState::Pause() {}
+
 void StageState::Resume() {}

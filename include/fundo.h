@@ -6,7 +6,7 @@
 
 class FundoInfinito : public Component {
 public:
-    // Garanta que a assinatura aqui tenha os novos parâmetros!
+    // Adicionamos scaleX e scaleY para esticar as imagens de 320x192 para a tela toda
     FundoInfinito(GameObject& associated, std::string file, float parallaxFactor, float scaleX = 1.0f, float scaleY = 1.0f);
     ~FundoInfinito();
 
@@ -15,7 +15,6 @@ public:
 
 private:
     Sprite* sprite;
-    float parallaxFactor;
+    float parallaxFactor; 
 };
-
 #endif
