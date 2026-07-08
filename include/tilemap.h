@@ -25,7 +25,8 @@ public:
     int GetHeight();
     int GetDepth();
 
-    bool IsSolid(int gridX, int gridY);
+    bool IsWall(int gridX, int gridY);
+    bool IsOneWay(int gridX, int gridY);
     bool IsWater(int gridX, int gridY);
     bool IsClimbing(int gridX, int gridY);
 

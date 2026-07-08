@@ -98,7 +98,30 @@ void TileMap::RenderLayer(int layer) {
                                      (int)(worldY - Camera::pos.y), 
                                      tileW, tileH};
                 
-                SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 0, 255, 0, SDL_ALPHA_OPAQUE);
+                // Identifica se a camada atual é parede ou plataforma para separar as cores
+                bool isWall = (layerMap.find("PAREDE") != layerMap.end() && layerMap["PAREDE"] == layer);
+                bool isPlatform = (layerMap.find("PLATAFORMA") != layerMap.end() && layerMap["PLATAFORMA"] == layer) ||
+                                  (layerMap.find("PLATAFORMA ARVORE") != layerMap.end() && layerMap["PLATAFORMA ARVORE"] == layer);
+                bool isWater = (layerMap.find("ÁGUA") != layerMap.end() && layerMap["ÁGUA"] == layer);
+                bool isClimbing = (layerMap.find("CANOS ESCALAR") != layerMap.end() && layerMap["CANOS ESCALAR"] == layer);
+
+                if (isWall) {
+                    // PAREDE = Vermelho
+                    SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 255, 0, 0, SDL_ALPHA_OPAQUE); 
+                } else if (isPlatform) {
+                    // PLATAFORMA (One-Way) = Verde
+                    SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 0, 255, 0, SDL_ALPHA_OPAQUE); 
+                } else if (isWater) {
+                    // ÁGUA = Azul
+                    SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 0, 0, 255, SDL_ALPHA_OPAQUE); 
+                } else if (isClimbing) {
+                    // ESCALADA = Amarelo
+                    SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 255, 255, 0, SDL_ALPHA_OPAQUE); 
+                } else {
+                    // Genérico = Branco
+                    SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE); 
+                }
+
                 SDL_RenderDrawRect(Game::GetInstance().GetRenderer(), &tileRect);
 #endif
                 // --- FIM DO BLOCO DE DEBUG ---
@@ -127,29 +150,34 @@ int TileMap::GetDepth() {
 
 void TileMap::Update(float dt) {}
 
-bool TileMap::IsSolid(int gridX, int gridY) {
-    // 1. Paredes invisíveis nas laterais (não deixa fugir do mapa pela esquerda/direita)
+// PAREDE ABSOLUTA (Não passa em X, não passa em Y, não passa de baixo pra cima)
+bool TileMap::IsWall(int gridX, int gridY) {
+    // 1. Paredes invisíveis nas laterais
     if (gridX < 0 || gridX >= mapWidth) return true;
+    
+    // 2. Teto e fundo continuam livres
+    if (gridY < 0 || gridY >= mapHeight) return false;
 
-    // 2. Teto livre: Se pular acima do mapa, é "ar" (permite subir em plataformas altas)
-    if (gridY < 0) return false;
-
-    // 3. Fundo livre: Se cair abaixo do mapa, é "ar" (permite cair e morrer no abismo)
-    if (gridY >= mapHeight) return false;
-
-    // Procura pela camada PLATAFORMA. Se ela existir no JSON e tiver um bloco desenhado ali, é sólido.
-    if (layerMap.find("PLATAFORMA") != layerMap.end()) {
-        int z = layerMap["PLATAFORMA"];
+    // 3. Procura apenas pela camada PAREDE
+    if (layerMap.find("PAREDE") != layerMap.end()) {
+        int z = layerMap["PAREDE"];
         if (At(gridX, gridY, z) >= 0) {
             return true;
         }
     }
+    return false;
+}
 
+// PLATAFORMAS (Passa em X, passa de baixo pra cima, bloqueia apenas queda)
+bool TileMap::IsOneWay(int gridX, int gridY) {
+    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) return false;
+
+    if (layerMap.find("PLATAFORMA") != layerMap.end()) {
+        if (At(gridX, gridY, layerMap["PLATAFORMA"]) >= 0) return true;
+    }
+    
     if (layerMap.find("PLATAFORMA ARVORE") != layerMap.end()) {
-        int z = layerMap["PLATAFORMA ARVORE"];
-        if (At(gridX, gridY, z) >= 0) {
-            return true;
-        }
+        if (At(gridX, gridY, layerMap["PLATAFORMA ARVORE"]) >= 0) return true;
     }
     
     return false;

@@ -221,44 +221,84 @@ void Character::Update(float dt) {
     Collider* collider = associated.GetComponent<Collider>();
     Rect hitbox = (collider != nullptr) ? collider->box : associated.box;
 
-    // ----- 1. MOVIMENTO EIXO X (Sem colisão com o mapa!) -----
+    // ----- 1. MOVIMENTO E COLISÃO NO EIXO X -----
     associated.box.x += speed.x * dt;
     hitbox.x += speed.x * dt; 
 
-    // ----- 2. MOVIMENTO E COLISÃO ONE-WAY NO EIXO Y -----
-    associated.box.y += speed.y * dt;
-    hitbox.y += speed.y * dt;
-    isGrounded = false;
-
-    // Atualiza o timer para o personagem voltar a pisar no chão após descer
-    dropTimer.Update(dt);
-    if (dropTimer.Get() > 0.25f) { // 0.25s é o suficiente para a hitbox atravessar o tile
-        droppingDown = false;
-    }
-
-    if (map != nullptr && !isScaling && !droppingDown) {
+    if (map != nullptr && !isScaling) {
         float tW = TILE_SIZE;
         float tH = TILE_SIZE;
         
         int left = std::floor(hitbox.x / tW);
         int right = std::floor((hitbox.x + hitbox.w - 1.0f) / tW);
+        int top = std::floor(hitbox.y / tH);
         int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / tH);
 
-        // ONE-WAY: Só colide se estiver CAINDO
-        if (speed.y > 0) { 
-            bool collisionY = false;
+        bool collisionX = false;
+        if (speed.x > 0) { // Andando pra direita
+            for (int y = top; y <= bottom; ++y) {
+                if (map->IsWall(right, y)) { collisionX = true; break; } // Bate SÓ em PAREDE!
+            }
+            if (collisionX) {
+                float diferencaHitbox = hitbox.x - associated.box.x;
+                associated.box.x = (right * tW) - hitbox.w - diferencaHitbox - 0.1f;
+                hitbox.x = associated.box.x + diferencaHitbox; 
+            }
+        } else if (speed.x < 0) { // Andando pra esquerda
+            for (int y = top; y <= bottom; ++y) {
+                if (map->IsWall(left, y)) { collisionX = true; break; } // Bate SÓ em PAREDE!
+            }
+            if (collisionX) {
+                float diferencaHitbox = hitbox.x - associated.box.x;
+                associated.box.x = (left * tW) + tW - diferencaHitbox + 0.1f;
+                hitbox.x = associated.box.x + diferencaHitbox; 
+            }
+        }
+    }
+
+    // ----- 2. MOVIMENTO E COLISÃO NO EIXO Y -----
+    associated.box.y += speed.y * dt;
+    hitbox.y += speed.y * dt;
+    isGrounded = false;
+
+    // Atualiza o timer de descer plataforma One-Way
+    dropTimer.Update(dt);
+    if (dropTimer.Get() > 0.25f) { 
+        droppingDown = false;
+    }
+
+    if (map != nullptr && !isScaling) {
+        float tW = TILE_SIZE;
+        float tH = TILE_SIZE;
+        
+        int left = std::floor(hitbox.x / tW);
+        int right = std::floor((hitbox.x + hitbox.w - 1.0f) / tW);
+        int top = std::floor(hitbox.y / tH);
+        int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / tH);
+
+        if (speed.y > 0) { // Caindo
+            bool collisionWall = false;
+            bool collisionOneWay = false;
+
             for (int x = left; x <= right; ++x) {
-                if (map->IsSolid(x, bottom)) { collisionY = true; break; }
+                if (map->IsWall(x, bottom)) { collisionWall = true; break; }
+                if (!droppingDown && map->IsOneWay(x, bottom)) { collisionOneWay = true; }
             }
 
-            if (collisionY) {
-                // REGRA DE OURO DO ONE-WAY: 
-                // Para não ser teleportado para cima ao cruzar o bloco subindo, 
-                // ele SÓ pisa no chão se o "pé antigo" (frame anterior) estava acima ou na bordinha da plataforma!
+            if (collisionWall) {
+                // A Parede age como chão absoluto: sempre para a queda!
+                float diferencaHitbox = hitbox.y - associated.box.y;
+                associated.box.y = (bottom * tH) - hitbox.h - diferencaHitbox - 0.1f;
+                hitbox.y = associated.box.y + diferencaHitbox; 
+                speed.y = 0;
+                isGrounded = true;
+            } 
+            else if (collisionOneWay) {
+                // O One-Way só para a queda se você estava em cima dele no frame anterior!
                 float oldBottom = hitbox.y - (speed.y * dt) + hitbox.h;
                 float tileTop = bottom * tH;
 
-                if (oldBottom <= tileTop + 15.0f) { // 15px de margem de tolerância
+                if (oldBottom <= tileTop + 15.0f) { 
                     float diferencaHitbox = hitbox.y - associated.box.y;
                     associated.box.y = tileTop - hitbox.h - diferencaHitbox - 0.1f;
                     hitbox.y = associated.box.y + diferencaHitbox; 
@@ -266,8 +306,22 @@ void Character::Update(float dt) {
                     isGrounded = true;
                 }
             }
+        } 
+        else if (speed.y < 0) { // Subindo (Pulando)
+            bool collisionWall = false;
+            
+            for (int x = left; x <= right; ++x) {
+                // Bater a cabeça no teto SÓ funciona com PAREDE!
+                if (map->IsWall(x, top)) { collisionWall = true; break; }
+            }
+
+            if (collisionWall) {
+                float diferencaHitbox = hitbox.y - associated.box.y;
+                associated.box.y = (top * tH) + tH - diferencaHitbox + 0.1f;
+                hitbox.y = associated.box.y + diferencaHitbox; 
+                speed.y = 0;
+            }
         }
-        // OBS: Sem o bloco 'else if (speed.y < 0)', a cabeça nunca colide com o teto, permitindo a travessia!
     }
 
     // Lógica da Água (se pisar, morre)
