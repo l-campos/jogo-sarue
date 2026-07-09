@@ -21,30 +21,27 @@ const float DASH_SPEED = 1000.0f;
 const float DASH_TIME = 0.2f;     
 const float DASH_COOLDOWN_TIME = 0.5f; 
 
-const float TILE_SIZE = 128.0f; // 32 (tamanho original) * 4.0 (escala aplicada no StageState)
+const float TILE_SIZE = 128.0f; 
 
-// Constantes extras
 const float CLIMB_SPEED = 150.0f; 
 const float CLIMB_EXIT_JUMP = 500.0f; 
 const float ATTACK_ANIM_DURATION = 0.35f; 
 const float DEATH_BUMP_SPEED = -350.0f; 
 
-// Configuração da Spritesheet mantida para não quebrar a animação
 const int SARUE_COLS = 4;
-const int SARUE_ROWS = 10;
+const int SARUE_ROWS = 8;
 const int SARUE_FRAME_SIZE = 32;
 inline int SF(int row, int col) { return row * SARUE_COLS + col; }
 
 Character* Character::player = nullptr;
 
 Character::Character(GameObject& associated, std::string sprite, TileMap* map)
-    : Component(associated), hp(100), linearSpeed(300.0f), isGrounded(false), 
+    : Component(associated), hp(6), linearSpeed(300.0f), isGrounded(false),
       isPlayingDead(false), isDashing(false), isFacingLeft(false), isAttacking(false), 
       isScaling(false), isHanging(false), isDying(false), droppingDown(false), map(map) {
     
     player = this;
 
-    // Sprite setup do seu colega
     SpriteRenderer* jogador = new SpriteRenderer(associated, sprite, SARUE_COLS, SARUE_ROWS);
     jogador->SetFrameSize(SARUE_FRAME_SIZE, SARUE_FRAME_SIZE);
     jogador->SetScale(4.0f, 4.0f);
@@ -55,15 +52,15 @@ Character::Character(GameObject& associated, std::string sprite, TileMap* map)
     animator->AddAnimation("walking", Animation(SF(1, 0), SF(1, 3), 0.1f));
     animator->AddAnimation("jump", Animation(SF(2, 0), SF(2, 3), 0.12f));
     animator->AddAnimation("escala", Animation(SF(3, 0), SF(3, 3), 0.15f));
-    animator->AddAnimation("attack", Animation(SF(4, 0), SF(4, 3), ATTACK_ANIM_DURATION / 4.0f));
-    animator->AddAnimation("hit", Animation(SF(6, 0), SF(6, 3), 0.1f));
-    animator->AddAnimation("dead", Animation(SF(7, 0), SF(7, 3), 0.15f));
-    animator->AddAnimation("play", Animation(SF(8, 3), SF(8, 3), 0.25f));
-    animator->AddAnimation("pendura", Animation(SF(9, 0), SF(9, 0), 0.15f));
+    animator->AddAnimation("hit", Animation(SF(4, 0), SF(4, 3), 0.1f));
+    animator->AddAnimation("dead", Animation(SF(5, 0), SF(5, 3), 0.15f));
+    animator->AddAnimation("play", Animation(SF(6, 3), SF(6, 3), 0.25f));
+    animator->AddAnimation("pendura", Animation(SF(7, 0), SF(7, 0), 0.15f));
     associated.AddComponent(animator);
     animator->SetAnimation("idle");
     
-    Collider* collider = new Collider(associated);
+    // ENCAIXE DO PEZINHO: O colisor agora sobe 12 pixels, fazendo o desenho afundar 12 no chão!
+    Collider* collider = new Collider(associated, Vec2(1.0f, 1.0f), Vec2(0, -6.0f));
     associated.AddComponent(collider);
 }
 
@@ -88,7 +85,6 @@ void Character::Update(float dt) {
         isDashing = false;
     }
     
-    // Controle de stun
     bool canControl = damageCooldown.Get() >= 0.3f;
     if (canControl) speed.x = 0;
 
@@ -101,7 +97,6 @@ void Character::Update(float dt) {
     
     isPlayingDead = false;
 
-    // Lógica de morte
     if (hp <= 0) {
         if (!isDying) {
             isDying = true;
@@ -121,7 +116,8 @@ void Character::Update(float dt) {
         return; 
     }
     
-    // 1. PROCESSA A FILA DE COMANDOS
+    float moveIntentY = 0.0f;
+
     while (!taskQueue.empty()) {
         Command cmd = taskQueue.front();
         taskQueue.pop();
@@ -134,15 +130,16 @@ void Character::Update(float dt) {
                 speed.x = 0;
             }
         }
-        // NOVO: DESCER PELA PLATAFORMA
         else if (cmd.type == Command::DROP_DOWN) {
             if (isGrounded) {
                 droppingDown = true;
                 dropTimer.Restart();
-                isGrounded = false; // Tira ele do chão imediatamente
+                isGrounded = false; 
             }
         }
         else if (cmd.type == Command::MOVE) {
+            moveIntentY = cmd.pos.y; 
+            
             if (isScaling) {
                 speed.x = 0;
                 speed.y = cmd.pos.y * CLIMB_SPEED;
@@ -161,7 +158,7 @@ void Character::Update(float dt) {
         else if (cmd.type == Command::JUMP) {
             if (isScaling) {
                 isScaling = false;
-                speed.y = -CLIMB_EXIT_JUMP;
+                speed.y = -CLIMB_EXIT_JUMP; 
                 isGrounded = false;
             }
             else if (isGrounded) {
@@ -184,26 +181,74 @@ void Character::Update(float dt) {
         else if (cmd.type == Command::DASH && !isPlayingDead) {
             if(!isDashing && dashCooldown.Get() > DASH_COOLDOWN_TIME){
                 isDashing = true;
+                isScaling = false; 
                 dashTimer.Restart();
                 dashCooldown.Restart();
             }
         }
     }
 
-    // Lógica do Cipó/Escalada
-    if (map != nullptr) {
+    // -------------------------------------------------------------------------
+    // LÓGICA DO CIPÓ / ESCALADA
+    // -------------------------------------------------------------------------
+    if (map != nullptr && !isDashing) {
         Vec2 center = associated.box.Center();
         int tileCenterX = std::floor(center.x / TILE_SIZE);
         int tileCenterY = std::floor(center.y / TILE_SIZE);
         
         bool onClimbTile = map->IsClimbing(tileCenterX, tileCenterY);
         
-        if (!isScaling && !isGrounded && onClimbTile) {
+        // ENTRAR NA ESCALADA
+        if (!isScaling && onClimbTile && moveIntentY != 0 && !isPlayingDead) {
             isScaling = true;
-            speed = Vec2(0, 0);
+            isGrounded = false;
+            speed = Vec2(0, 0); 
+            
+            isFacingLeft = false;
+            if (spriteRenderer != nullptr) {
+                spriteRenderer->SetFlip(SDL_FLIP_NONE);
+            }
+            
+            float tileWorldX = tileCenterX * TILE_SIZE;
+            associated.box.x = (tileWorldX + (TILE_SIZE / 2.0f)) - (associated.box.w / 2.0f);
         }
+        // SAIR DA ESCALADA (Acabou o cano pelo topo)
         else if (isScaling && !onClimbTile) {
             isScaling = false; 
+            if (speed.y < 0) {
+                speed.y = -500.0f; 
+            }
+        }
+        
+        // SAIR DA ESCALADA POR BAIXO (Encostou o pé na parede ou chão)
+        if (isScaling && speed.y > 0) {
+            Collider* col = associated.GetComponent<Collider>();
+            Rect hBox = (col != nullptr) ? col->box : associated.box;
+            
+            float tW = TILE_SIZE;
+            float tH = TILE_SIZE;
+            int left = std::floor(hBox.x / tW);
+            int right = std::floor((hBox.x + hBox.w - 1.0f) / tW);
+            
+            // Olha para onde o pé vai estar no próximo frame de simulação
+            float futureFootY = hBox.y + (speed.y * dt) + hBox.h;
+            int bottomTile = std::floor((futureFootY - 1.0f) / tH);
+            
+            bool hitFloor = false;
+            for (int x = left; x <= right; ++x) {
+                if (map->IsClimbing(x, bottomTile)) {
+                    hitFloor = false; 
+                    break; 
+                }
+
+                if (map->IsWall(x, bottomTile) || map->IsOneWay(x, bottomTile)) {
+                    hitFloor = true; break;
+                }
+            }
+            
+            if (hitFloor) {
+                isScaling = false; // Solta do cano e a colisão "Y" normal embaixo já toma o controle no mesmo frame!
+            }
         }
     }
 
@@ -217,11 +262,9 @@ void Character::Update(float dt) {
         if (speed.y > MAX_FALL_SPEED) speed.y = MAX_FALL_SPEED;
     }
 
-    // CAPTURA A CAIXA REAL DE COLISÃO
     Collider* collider = associated.GetComponent<Collider>();
     Rect hitbox = (collider != nullptr) ? collider->box : associated.box;
 
-    // ----- 1. MOVIMENTO E COLISÃO NO EIXO X -----
     associated.box.x += speed.x * dt;
     hitbox.x += speed.x * dt; 
 
@@ -235,18 +278,18 @@ void Character::Update(float dt) {
         int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / tH);
 
         bool collisionX = false;
-        if (speed.x > 0) { // Andando pra direita
+        if (speed.x > 0) { 
             for (int y = top; y <= bottom; ++y) {
-                if (map->IsWall(right, y)) { collisionX = true; break; } // Bate SÓ em PAREDE!
+                if (map->IsWall(right, y)) { collisionX = true; break; } 
             }
             if (collisionX) {
                 float diferencaHitbox = hitbox.x - associated.box.x;
                 associated.box.x = (right * tW) - hitbox.w - diferencaHitbox - 0.1f;
                 hitbox.x = associated.box.x + diferencaHitbox; 
             }
-        } else if (speed.x < 0) { // Andando pra esquerda
+        } else if (speed.x < 0) { 
             for (int y = top; y <= bottom; ++y) {
-                if (map->IsWall(left, y)) { collisionX = true; break; } // Bate SÓ em PAREDE!
+                if (map->IsWall(left, y)) { collisionX = true; break; } 
             }
             if (collisionX) {
                 float diferencaHitbox = hitbox.x - associated.box.x;
@@ -256,12 +299,10 @@ void Character::Update(float dt) {
         }
     }
 
-    // ----- 2. MOVIMENTO E COLISÃO NO EIXO Y -----
     associated.box.y += speed.y * dt;
     hitbox.y += speed.y * dt;
     isGrounded = false;
 
-    // Atualiza o timer de descer plataforma One-Way
     dropTimer.Update(dt);
     if (dropTimer.Get() > 0.25f) { 
         droppingDown = false;
@@ -276,7 +317,7 @@ void Character::Update(float dt) {
         int top = std::floor(hitbox.y / tH);
         int bottom = std::floor((hitbox.y + hitbox.h - 1.0f) / tH);
 
-        if (speed.y > 0) { // Caindo
+        if (speed.y > 0) { 
             bool collisionWall = false;
             bool collisionOneWay = false;
 
@@ -286,7 +327,6 @@ void Character::Update(float dt) {
             }
 
             if (collisionWall) {
-                // A Parede age como chão absoluto: sempre para a queda!
                 float diferencaHitbox = hitbox.y - associated.box.y;
                 associated.box.y = (bottom * tH) - hitbox.h - diferencaHitbox - 0.1f;
                 hitbox.y = associated.box.y + diferencaHitbox; 
@@ -294,7 +334,6 @@ void Character::Update(float dt) {
                 isGrounded = true;
             } 
             else if (collisionOneWay) {
-                // O One-Way só para a queda se você estava em cima dele no frame anterior!
                 float oldBottom = hitbox.y - (speed.y * dt) + hitbox.h;
                 float tileTop = bottom * tH;
 
@@ -307,11 +346,10 @@ void Character::Update(float dt) {
                 }
             }
         } 
-        else if (speed.y < 0) { // Subindo (Pulando)
+        else if (speed.y < 0) { 
             bool collisionWall = false;
             
             for (int x = left; x <= right; ++x) {
-                // Bater a cabeça no teto SÓ funciona com PAREDE!
                 if (map->IsWall(x, top)) { collisionWall = true; break; }
             }
 
@@ -324,7 +362,6 @@ void Character::Update(float dt) {
         }
     }
 
-    // Lógica da Água (se pisar, morre)
     if (hp > 0 && map != nullptr && !isScaling) {
         int tileCenterX = std::floor(hitbox.Center().x / TILE_SIZE);
         int tileCenterY = std::floor(hitbox.Center().y / TILE_SIZE);
@@ -333,7 +370,6 @@ void Character::Update(float dt) {
         }
     }
 
-    // Abismo
     if (associated.box.y > 10000.0f) { 
         hp = 0; 
     }
@@ -341,13 +377,11 @@ void Character::Update(float dt) {
     bool isMoving = (speed.x != 0);
     bool justHit = damageCooldown.Get() < 0.3f;
 
-    // Gerenciamento das animações mantendo as prioridades feitas
     if (animator) {
+        animator->isPlaying = true; // Garante que a animação despause caso ele volte a andar ou pular
+
         if (justHit) {
             animator->SetAnimation("hit");
-        }
-        else if (isAttacking) {
-            animator->SetAnimation("attack");
         }
         else if (isPlayingDead) {
             animator->SetAnimation("play");
@@ -357,6 +391,10 @@ void Character::Update(float dt) {
         }
         else if (isScaling) {
             animator->SetAnimation("escala");
+            // PAUSA A ANIMAÇÃO QUANDO ESTIVER PARADO NO CANO
+            if (speed.y == 0) {
+                animator->isPlaying = false; 
+            }
         }
         else if (!isGrounded) {
             animator->SetAnimation("jump");
@@ -404,7 +442,7 @@ void Character::NotifyCollision(GameObject& other) {
 
     if (other.GetComponent<Fruit>() != nullptr) {
         hp += 1;
-        if (hp > 5) hp = 5;
+        if (hp > 6) hp = 6; // O máximo de vidas do personagem é 6
         other.RequestDelete();
     }
 }

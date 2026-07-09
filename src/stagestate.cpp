@@ -70,7 +70,7 @@ StageState::StageState() {
     playerObject->box.y = 0; // Cai até o primeiro tile sólido
 
     // Usando o sprite que foi dimensionou em Character.cpp
-    Character* playerCharacter = new Character(*playerObject, "img/personagem.png", tileMap);
+    Character* playerCharacter = new Character(*playerObject, "img/sarue.png", tileMap);
     playerObject->AddComponent(playerCharacter);
 
     PlayerController* playerController = new PlayerController(*playerObject);

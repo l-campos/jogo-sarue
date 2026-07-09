@@ -1,96 +1,123 @@
 #include "meleeattack.h"
-#include "spriterenderer.h"
-#include "animator.h"
 #include "collider.h"
-#include "enemy.h" 
+#include "enemy.h"
 #include "gato.h"
-// REMOVIDO: #include "zombie.h" e #include "aicontroller.h" — sobra do outro
-// jogo, não são usados em nenhum lugar deste arquivo.
 
-// Precisa bater com os mesmos valores usados em character.cpp (SARUE_COLS /
-// SARUE_ROWS / SARUE_FRAME_SIZE), já que o efeito usa a mesma spritesheet do
-// saruê. Duplicado aqui em vez de compartilhado por header pra manter os dois
-// arquivos independentes — se mudar um, lembre de mudar o outro.
-const int EFFECT_SHEET_COLS = 4;
-const int EFFECT_SHEET_ROWS = 10;
-const int EFFECT_FRAME_SIZE = 32;
-const int EFFECT_ROW = 5; // linha 6 (índice 5) = "efeito do ataque mordida"
+// A duração do ataque deve casar com o que estava no Character (0.35s)
+const float ATTACK_DURATION = 0.35f;
+const float FRAME_TIME = ATTACK_DURATION / 4.0f; 
 
-MeleeAttack::MeleeAttack(GameObject& associated, std::weak_ptr<GameObject> player, float directionX, float directionY) 
-    : Component(associated), player(player), dirX(directionX), dirY(directionY), damage(1), knockbackForce(150.0f) {
-    // CORREÇÃO: "damage" estava em 50, mas em NotifyCollision() o dano aplicado
-    // era sempre hardcoded como "1" (passaro->Damage(1, ...)), entao o valor
-    // de 50 nunca era realmente usado — era código morto. Troquei o padrão pra
-    // 1 e fiz NotifyCollision usar esse membro de verdade, pra dar pra ajustar
-    // o dano da mordida num lugar só.
+// =========================================================================
+// CONFIGURAÇÕES VISUAIS DA CABEÇA DE ATAQUE (Fácil de alterar)
+// =========================================================================
+// 1. Aumente ou diminua a escala abaixo (ex: 3.5f, 5.0f) para mudar o tamanho:
+const float HEAD_SCALE = 6.0f; 
 
-    // Efeito da mordida agora usa os frames 20-23 (linha 6) da própria
-    // spritesheet do saruê, em vez do placeholder "img/Gun.png".
-    // AJUSTAR o nome do arquivo se ele não se chamar "img/personagem.png" nos
-    // assets finais do projeto (é o mesmo caminho usado em stagestate.cpp).
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/personagem.png", EFFECT_SHEET_COLS, EFFECT_SHEET_ROWS);
-    sprite->SetFrameSize(EFFECT_FRAME_SIZE, EFFECT_FRAME_SIZE);
-    associated.AddComponent(sprite);
+// 2. Ajuste o quanto a cabeça vai para a FRENTE do rosto do Saruê:
+const float HEAD_OFFSET_X = 1.0f; 
 
-    // 4 frames (20 a 23), tocando rápido dentro da janela de 0.5s do ataque
-    Animator* animator = new Animator(associated);
-    int startFrame = EFFECT_ROW * EFFECT_SHEET_COLS;     // = 20
-    int endFrame = startFrame + 3;                        // = 23
-    animator->AddAnimation("attack", Animation(startFrame, endFrame, 0.0833f)); 
-    animator->SetAnimation("attack");
-    associated.AddComponent(animator);
+// 3. Ajuste a altura (0.0f fica no topo da caixa. Valores maiores a puxam para BAIXO):
+const float HEAD_OFFSET_Y = -50.0f;  
+// =========================================================================
 
-    // Adiciona o colisor para a hitbox
+MeleeAttack::MeleeAttack(GameObject& associated, std::weak_ptr<GameObject> player, float directionX, float directionY)
+    : Component(associated), player(player), dirX(directionX), dirY(directionY), damage(1), knockbackForce(150.0f), currentFrame(0) {
+
+    // 1. Instancia o Sprite da Cabeça com a nova escala configurável
+    headSprite = new Sprite("img/saruebite.png", 4, 1);
+    headSprite->SetScale(HEAD_SCALE, HEAD_SCALE);
+
+    // 2. Instancia o Sprite do Efeito (hitbox)
+    effectSprite = new Sprite("img/efeitobite.png", 4, 1);
+    effectSprite->SetScale(4.0f, 4.0f);
+
+    associated.box.w = effectSprite->GetWidth();
+    associated.box.h = effectSprite->GetHeight();
+
     Collider* collider = new Collider(associated);
     associated.AddComponent(collider);
 }
 
+MeleeAttack::~MeleeAttack() {
+    delete headSprite;
+    delete effectSprite;
+}
+
 void MeleeAttack::Update(float dt) {
     std::shared_ptr<GameObject> playerPtr = player.lock();
-
-    // Se o jogador morrer ou sumir, o ataque some junto
+    
     if (!playerPtr) {
         associated.RequestDelete();
         return;
     }
 
+    frameTimer.Update(dt);
+    if (frameTimer.Get() > FRAME_TIME) {
+        currentFrame++;
+        if (currentFrame > 3) currentFrame = 3; 
+        headSprite->SetFrame(currentFrame);
+        effectSprite->SetFrame(currentFrame);
+        frameTimer.Restart();
+    }
+
     if (dirY == -1) {
-        // Ataque para cima (segurando W): o efeito nasce vertical na
-        // spritesheet, entao aqui giramos 90° pra ficar deitado/horizontal,
-        // como pedido.
         associated.box.x = playerPtr->box.Center().x - (associated.box.w / 2.0f);
         associated.box.y = playerPtr->box.y - associated.box.h;
-        associated.angleDeg = 90.0f; // ERA -90; se ficar de cabeça pra baixo, troque pra -90 de novo
+        associated.angleDeg = -90.0f; 
+        effectSprite->SetFlip(SDL_FLIP_NONE);
     } else {
-        // Ataque para frente (padrão): mantém a orientação vertical natural do
-        // efeito, parecido com o corte vertical do Hollow Knight.
         associated.angleDeg = 0.0f;
         associated.box.y = playerPtr->box.Center().y - (associated.box.h / 2.0f);
-
-        SpriteRenderer* spriteRenderer = associated.GetComponent<SpriteRenderer>();
-        if (dirX < 0) { // Olhando para a esquerda
+        if (dirX < 0) { 
             associated.box.x = playerPtr->box.x - associated.box.w;
-            if (spriteRenderer) spriteRenderer->SetFlip(SDL_FLIP_HORIZONTAL);
-        } else { // Olhando para a direita
+            effectSprite->SetFlip(SDL_FLIP_HORIZONTAL);
+        } else { 
             associated.box.x = playerPtr->box.x + playerPtr->box.w;
-            if (spriteRenderer) spriteRenderer->SetFlip(SDL_FLIP_NONE);
+            effectSprite->SetFlip(SDL_FLIP_NONE);
         }
     }
 
-    // Atualiza o timer de duração (0.5 segundos)
     durationTimer.Update(dt);
-    if (durationTimer.Get() >= 0.5f) {
-        associated.RequestDelete(); // Remove a hitbox da cena após meio segundo
+    if (durationTimer.Get() >= ATTACK_DURATION) {
+        associated.RequestDelete(); 
     }
     
     Collider* collider = associated.GetComponent<Collider>();
     if (collider) collider->Update(dt);
 }
 
-void MeleeAttack::Render() {}
+void MeleeAttack::Render() {
+    std::shared_ptr<GameObject> playerPtr = player.lock();
+    
+    if (playerPtr) {
+        // Começa calculando o centro geométrico horizontal
+        float headX = playerPtr->box.Center().x - (headSprite->GetWidth() / 2.0f);
+        
+        // Aplica o deslocamento de altura
+        float headY = playerPtr->box.y + HEAD_OFFSET_Y; 
+
+        if (dirY == -1) {
+            // Se o ataque for para CIMA, a cabeça fica centralizada e sobe um pouco mais
+            headSprite->SetFlip(dirX < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+        } else {
+            // Se o ataque for para a FRENTE, empurra a cabeça na direção do olhar usando o OFFSET_X
+            if (dirX < 0) {
+                headX -= HEAD_OFFSET_X; // Empurra para a esquerda
+                headSprite->SetFlip(SDL_FLIP_HORIZONTAL);
+            } else {
+                headX += HEAD_OFFSET_X; // Empurra para a direita
+                headSprite->SetFlip(SDL_FLIP_NONE);
+            }
+        }
+
+        // Renderiza nas coordenadas ajustadas
+        headSprite->Render(headX, headY);
+    }
+
+    effectSprite->Render(associated.box.x, associated.box.y, associated.angleDeg);
+}
 
 void MeleeAttack::NotifyCollision(GameObject& other) {
-    // Verifica se já atingimos esse inimigo neste ataque
     for (GameObject* hitEnemy : hitEnemies) {
         if (hitEnemy == &other) return; 
     }
@@ -99,10 +126,8 @@ void MeleeAttack::NotifyCollision(GameObject& other) {
     Gato* gato = other.GetComponent<Gato>();
 
     if (passaro != nullptr || gato != nullptr) {
-        hitEnemies.push_back(&other); // Registra que apanhou
+        hitEnemies.push_back(&other); 
         
-        // CORREÇÃO: agora usa o membro "damage" de verdade, em vez do "1"
-        // fixo que ignorava a configuração feita no construtor.
         if (passaro) passaro->Damage(damage, associated.box.Center());
         if (gato) gato->Damage(damage, associated.box.Center());
     }

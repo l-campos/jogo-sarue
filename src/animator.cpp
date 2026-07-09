@@ -7,7 +7,8 @@ Animator::Animator(GameObject& associated)
     currentFrame(0), timeElapsed(0) {}
 
 void Animator::Update(float dt) {
-    if (frameTime <= 0) return; 
+    // NOVO: Se o frameTime for 0 ou se estiver pausado, não avança a animação!
+    if (frameTime <= 0 || !isPlaying) return;
     
     timeElapsed += dt;
     
@@ -37,11 +38,13 @@ void Animator::SetAnimation(std::string name) {
         frameStart = it->second.frameStart;
         frameEnd = it->second.frameEnd;
         frameTime = it->second.frameTime;
+
         if (current != name) {
             current = name;
         } else {
             return; 
         }
+        
         currentFrame = frameStart;
         timeElapsed = 0;
         

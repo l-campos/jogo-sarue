@@ -16,6 +16,7 @@ public:
     void AddAnimation(std::string name, Animation anim);
 
     std::string current;
+    bool isPlaying; // NOVO: Controle de pausa da animação
 
 private:
     std::unordered_map<std::string, Animation> animations;
