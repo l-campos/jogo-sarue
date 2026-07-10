@@ -2,6 +2,7 @@
 #include "collider.h"
 #include "enemy.h"
 #include "gato.h"
+#include "sound.h"
 
 // A duração do ataque deve casar com o que estava no Character (0.35s)
 const float ATTACK_DURATION = 0.35f;
@@ -36,6 +37,9 @@ MeleeAttack::MeleeAttack(GameObject& associated, std::weak_ptr<GameObject> playe
 
     Collider* collider = new Collider(associated);
     associated.AddComponent(collider);
+
+    Sound biteSound("audio/bite.mp3");
+    biteSound.Play(1);
 }
 
 MeleeAttack::~MeleeAttack() {

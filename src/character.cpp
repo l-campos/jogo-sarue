@@ -11,6 +11,7 @@
 #include "gato.h"
 #include "fumaca.h"
 #include "meleeattack.h"
+#include "camera.h"
 #include <cmath>
 
 const float GRAVITY = 1500.0f;
@@ -102,6 +103,11 @@ void Character::Update(float dt) {
             isDying = true;
             speed.x = 0;
             speed.y = DEATH_BUMP_SPEED;
+
+            Camera::Unfollow();
+
+            Sound deathSound("audio/Dead.wav");
+            deathSound.Play(1);
         }
         deathTimer.Update(dt);
         if (animator) animator->SetAnimation("dead");
