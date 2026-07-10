@@ -3,8 +3,8 @@
 #include "camera.h"
 
 HUD::HUD(GameObject& associated) : Component(associated){
-    lifeIcon = new Sprite("img/vida.png");
-    lifeIcon->SetScale(0.5f, 0.5f);
+    lifeIcon = new Sprite("img/hp.png");
+    lifeIcon->SetScale(2.0f, 2.0f);
 }
 
 HUD::~HUD() {
@@ -18,7 +18,7 @@ void HUD::Render() {
         int hp = Character::player->GetHP();
         float startX = 20.0f;
         float startY = 20.0f;
-        float spacing = 40.0f;
+        float spacing = 65.0f;
 
         for (int i = 0; i < hp; i++) {
             float x = startX + (i*spacing) + Camera::pos.x;
