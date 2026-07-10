@@ -5,10 +5,11 @@
 #include "vec2.h"
 #include "timer.h"
 #include "gameobject.h"
+#include "tilemap.h"
 
 class Gato : public Component {
 public:
-    Gato(GameObject& associated, float x, float y);
+    Gato(GameObject& associated, float x, float y, TileMap* map);
     
     void Update(float dt) override;
     void Render() override;
@@ -32,6 +33,8 @@ private:
 
     Timer damageCooldown;
     bool isStunned;
+
+    TileMap* map;
 };
 
 #endif

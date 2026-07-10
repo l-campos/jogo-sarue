@@ -21,7 +21,7 @@
 #include "hud.h"
 #include "gato.h"
 #include "fundo.h"
-#include "spawner.h"
+#include "boss.h"
 
 StageState::StageState() {
     /* 1. BACKGROUNDS (Parallax usando classe FundoInfinito) */
@@ -78,7 +78,7 @@ StageState::StageState() {
 
     // Para nascer na coluna 2, basta multiplicar pelo tamanho real do tile
     playerObject->box.x = 2 * tileSet->GetTileWidth(); 
-    playerObject->box.y = 0; // Cai até o primeiro tile sólido
+    playerObject->box.y = 7 * tileSet->GetTileHeight(); // Cai até o primeiro tile sólido
 
     // Usando o sprite que foi dimensionou em Character.cpp
     Character* playerCharacter = new Character(*playerObject, "img/sarue.png", tileMap);
@@ -88,11 +88,55 @@ StageState::StageState() {
     playerObject->AddComponent(playerController);
     AddObject(playerObject);
 
-    /* 4. INIMIGOS E ITENS (Recuperado: Mantém a IA gerando os inimigos) */
-    GameObject* spawnerObj = new GameObject();
-    Spawner* gerador = new Spawner(*spawnerObj);
-    spawnerObj->AddComponent(gerador);
-    AddObject(spawnerObj);
+   // COORDENADAS DOS INIMIGOS
+    std::vector<std::pair<int, int>> posPombos = {
+        {13, 5}, {20, 5}, {26, 4}, {32, 4}, {37, 5}
+    };
+
+    std::vector<std::pair<int, int>> posGatos = {
+        {11, 4}, {71,7}, {48, 7}, {53, 8}, {63, 10}, {81, 9}, 
+        {84, 7}, {80, 4}, {85, 4}, {88, 3}
+    };
+
+    //FRUTAS
+    std::vector<std::pair<int, int>> posFrutas = {
+        {90, 10}, {91, 7}, {80, 2}
+    };
+
+    // GERANDO OS POMBOS (Passando o tileMap)
+    for (auto& pos : posPombos) {
+        GameObject* pomboObj = new GameObject();
+        float spawnX = pos.first * tileSet->GetTileWidth();
+        float spawnY = pos.second * tileSet->GetTileHeight();
+        
+        Enemy* pombo = new Enemy(*pomboObj, spawnX, spawnY, tileMap);
+        pomboObj->AddComponent(pombo);
+        AddObject(pomboObj);
+    }
+
+    // GERANDO OS GATOS (Passando o tileMap)
+    for (auto& pos : posGatos) {
+        GameObject* gatoObj = new GameObject();
+        float spawnX = pos.first * tileSet->GetTileWidth();
+        float spawnY = pos.second * tileSet->GetTileHeight();
+
+        Gato* gato = new Gato(*gatoObj, spawnX, spawnY, tileMap);
+        gatoObj->AddComponent(gato);
+        AddObject(gatoObj);
+    }
+
+    // GERANDO AS FRUTAS (Passando o tileMap)
+    for (auto& pos : posFrutas) {
+        GameObject* fruitObj = new GameObject();
+        
+        // Converte a coordenada do grid (X, Y) para pixels no mundo
+        float spawnX = pos.first * tileSet->GetTileWidth();
+        float spawnY = pos.second * tileSet->GetTileHeight();
+
+        Fruit* fruit = new Fruit(*fruitObj, spawnX, spawnY);
+        fruitObj->AddComponent(fruit);
+        AddObject(fruitObj);
+    }
 
     /* 5. HUD E CÂMERA */
     Camera::Follow(playerObject);
@@ -101,6 +145,15 @@ StageState::StageState() {
     HUD* hudUI = new HUD(*hudObject);
     hudObject->AddComponent(hudUI);
     AddObject(hudObject);
+
+    /* 6. CHEFE FINAL */
+    GameObject* bossObj = new GameObject();
+    // Posiciona ele fora da tela na direita (Tile 96), esperando o gatilho
+    float bossX = 96 * tileSet->GetTileWidth();
+    float bossY = 0 * tileSet->GetTileHeight();
+    Boss* boss = new Boss(*bossObj, bossX, bossY, tileMap);
+    bossObj->AddComponent(boss);
+    AddObject(bossObj);
 }
 
 StageState::~StageState() {}
@@ -135,6 +188,13 @@ void StageState::Update(float dt) {
         backgroundMusic.Stop(0);
 
         Game::GetInstance().Push(new EndState());
+    }
+
+    if (GameData::playerVictory) {
+        popRequested = true;
+        backgroundMusic.Stop(0);
+        Game::GetInstance().Push(new EndState());
+        return; // Encerra o frame imediatamente
     }
     
     for (unsigned i = 0; i < objectArray.size(); i++) {

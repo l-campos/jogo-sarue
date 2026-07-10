@@ -4,10 +4,11 @@
 #include "component.h"
 #include "vec2.h"
 #include "timer.h"
+#include "tilemap.h"
 
 class Enemy : public Component {
 public:
-    Enemy(GameObject& associated, float startX, float startY);
+    Enemy(GameObject& associated, float startX, float startY, TileMap* map);
     
     void Update(float dt) override;
     void Render() override;
@@ -17,9 +18,7 @@ public:
     void Damage(int damage, Vec2 attackerPos);
 
 private:
-    // NOVO: tirei o RECOVER (não faz mais sentido — o pombo agora é
-    // kamikaze: mergulha uma vez e explode, não volta a patrulhar).
-    enum EnemyState { PATROL, DIVE, EXPLODE };
+    enum EnemyState { PATROL, DIVE, EXPLODE, RETURNING };
     EnemyState state;
     
     Vec2 speed;
@@ -39,6 +38,8 @@ private:
     int hp;
     Timer damageCooldown;
     bool isStunned;
+
+    TileMap* map;
 };
 
 #endif

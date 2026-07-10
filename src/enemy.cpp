@@ -1,6 +1,6 @@
 #define PATROL_RANGE 200.0f
 #define PATROL_SPEED 150.0f
-#define DIVE_SPEED 400.0f
+#define DIVE_SPEED 600.0f
 
 #include <cmath>
 #include "enemy.h"
@@ -10,24 +10,29 @@
 #include "collider.h"
 #include "gameobject.h"
 
+const float TILE_SIZE = 128.0f;
 
-Enemy::Enemy(GameObject& associated, float startX, float startY) 
-    : Component(associated), startX(startX), startY(startY), hp(2), isStunned(false) {
+Enemy::Enemy(GameObject& associated, float startX, float startY, TileMap* map) 
+    : Component(associated), startX(startX), startY(startY), hp(2), isStunned(false), map(map) {
     
-    // Posiciona o Pombo
     associated.box.x = startX;
     associated.box.y = startY;
 
     state = PATROL;
-    speed = {PATROL_SPEED, 0}; // Começa voando para a direita
+    speed = {PATROL_SPEED, 0}; 
 
-    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/pombo.png", 5, 1);
-    sprite->SetScale(4.0f, 4.0f);
+    // CARREGA APENAS A IMAGEM DE PATRULHA (4 frames)
+    SpriteRenderer* sprite = new SpriteRenderer(associated, "img/pombo_patrulha.png", 4, 1);
+    sprite->SetScale(2.0f, 2.0f);
     associated.AddComponent(sprite);
 
     Animator* animator = new Animator(associated);
-    animator->AddAnimation("idle", Animation(0, 0, 0.1f)); //placeholder voando
-    animator->AddAnimation("walking", Animation(1, 5, 0.1f)); //placeholder ataque
+    
+    // Animações começam do 0 em seus respectivos arquivos
+    animator->AddAnimation("patrol", Animation(0, 3, 0.1f)); 
+    animator->AddAnimation("diving", Animation(0, 3, 0.1f)); 
+    animator->AddAnimation("explode", Animation(4, 4, 0.2f)); 
+    
     associated.AddComponent(animator);
     
     Collider* collider = new Collider(associated);
@@ -38,7 +43,6 @@ void Enemy::Update(float dt) {
     if (isStunned) {
         damageCooldown.Update(dt);
         
-        // FÍSICA DE KNOCKBACK ENQUANTO ESTÁ ATORDOADO
         if (damageCooldown.Get() < 0.3f) {
             speed.y += 1500.0f * dt; 
             associated.box.x += speed.x * dt;
@@ -46,9 +50,9 @@ void Enemy::Update(float dt) {
             
             Collider* collider = associated.GetComponent<Collider>();
             if (collider != nullptr) collider->Update(dt);
-            return; // Sai do Update!
+            return; 
         } else {
-            isStunned = false; // Acabou o tempo de stun
+            isStunned = false; 
             speed.y = -200.0f; 
         }
     }
@@ -56,126 +60,164 @@ void Enemy::Update(float dt) {
     Animator* animator = associated.GetComponent<Animator>();
     SpriteRenderer* sprite = associated.GetComponent<SpriteRenderer>();
 
-    // ------------------------------------------------------------------
-    // LÓGICA DE ESTADOS DA INTELIGÊNCIA ARTIFICIAL (agora kamikaze):
-    // PATROL -> vê o jogador, trava a posição dele -> DIVE (mergulho reto,
-    // sem reajustar) -> chega no alvo/chão -> EXPLODE -> deleta.
-    // ------------------------------------------------------------------
+    // VERIFICA SE O SARUÊ FINGIU DE MORTO
+    if (Character::player != nullptr) {
+        // Se Saruê deitou, o Pombo deve abortar (caso não tenha explodido ainda)
+        if (Character::player->IsPlayingDead() && state != EXPLODE && state != RETURNING) {
+            // Se ele já estava em DIVE (mergulhando), precisamos destrocar a imagem de volta para patrulha!
+            if (state == DIVE) {
+                if (sprite) {
+                    sprite->Open("img/pombo_patrulha.png");
+                    sprite->SetFrameCount(4, 1);
+                    sprite->SetScale(2.0f, 2.0f);
+                }
+            }
+            state = RETURNING;
+        } 
+        // Se o Saruê levantou e o pombo estava no ar voltando, volta a patrulhar imediatamente
+        else if (!Character::player->IsPlayingDead() && state == RETURNING) {
+            state = PATROL;
+        }
+    }
+
     if (state == PATROL) {
-        if (animator) animator->SetAnimation("idle");
+        if (animator) animator->SetAnimation("patrol");
         
-        // Vai de um lado para o outro
         associated.box.x += speed.x * dt;
         
+        // Vai e volta na patrulha
         if (associated.box.x > startX + PATROL_RANGE) {
-            speed.x = -PATROL_SPEED; // Vira pra esquerda
+            speed.x = -PATROL_SPEED; 
             if (sprite) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
         } else if (associated.box.x < startX - PATROL_RANGE) {
-            speed.x = PATROL_SPEED; // Vira pra direita
+            speed.x = PATROL_SPEED; 
             if (sprite) sprite->SetFlip(SDL_FLIP_NONE);
         }
 
-        // Detecta o Saruê abaixo dele
+        // Procura o jogador
         if (Character::player != nullptr && !Character::player->IsPlayingDead()) {
             Vec2 playerPos = Character::player->GetPosition();
-            
             float distX = std::abs(associated.box.Center().x - playerPos.x);
             
-            if (distX < 100.0f && playerPos.y > associated.box.y) {
-                // NOVO: trava o alvo AGORA. Depois disso o mergulho não
-                // reage mais a onde o jogador for (se ele pular, foge, etc,
-                // o pombo continua indo pro ponto que ele viu).
+            // Viu o jogador = Mudar para DIVE
+            if (distX < 200.0f && playerPos.y > associated.box.y) {
                 diveTarget = playerPos;
-
                 state = DIVE; 
+
+                // TROCA PARA A IMAGEM DE MERGULHO EXATAMENTE AQUI (Apenas 1 vez)
+                if (sprite) {
+                    sprite->Open("img/pombo_mergulho.png");
+                    sprite->SetFrameCount(5, 1);
+                    sprite->SetScale(2.0f, 2.0f);
+                    sprite->SetFlip(speed.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+                }
                 
                 Vec2 direction = (diveTarget - associated.box.Center()).Normalize();
                 speed = direction * DIVE_SPEED;
-
-                if (sprite) {
-                    if (speed.x < 0) sprite->SetFlip(SDL_FLIP_HORIZONTAL);
-                    else sprite->SetFlip(SDL_FLIP_NONE);
-                }
             }
         }
     } 
     
     else if (state == DIVE) {
-        if (animator) animator->SetAnimation("walking"); 
+        if (animator) animator->SetAnimation("diving"); 
 
-        // Movimento em linha reta na direção travada — SEM reler a posição
-        // atual do jogador, é só inércia da velocidade calculada no PATROL.
         associated.box.x += speed.x * dt;
         associated.box.y += speed.y * dt;
 
         Vec2 currentPos = associated.box.Center();
         float distToTarget = currentPos.Distance(diveTarget);
+        bool hitGround = false;
 
-        // Chegou perto o suficiente do ponto travado, OU já passou dele e
-        // bateu no chão (caso o jogador não estivesse mais lá) -> explode.
-        float groundLevelPombo = 700.0f; // mesmo chão usado pelo Character
+        // Checagem com o chão (TileMap)
+        if (map != nullptr && speed.y > 0) {
+            int left = std::floor(associated.box.x / TILE_SIZE);
+            int right = std::floor((associated.box.x + associated.box.w - 1.0f) / TILE_SIZE);
+            int bottom = std::floor((associated.box.y + associated.box.h) / TILE_SIZE);
+
+            for (int x = left; x <= right; ++x) {
+                if (map->IsWall(x, bottom) || map->IsOneWay(x, bottom)) {
+                    hitGround = true; 
+                    break;
+                }
+            }
+        }
+
         bool reachedTarget = distToTarget < 24.0f;
-        bool hitGround = (associated.box.y + associated.box.h) >= groundLevelPombo;
-
         if (reachedTarget || hitGround) {
             state = EXPLODE;
             explodeTimer.Restart();
             speed = Vec2(0, 0);
         }
     }
+
+    else if (state == RETURNING) {
+        if (animator) animator->SetAnimation("patrol");
+
+        Vec2 currentPos = associated.box.Center();
+        // O alvo de retorno é a base dele
+        Vec2 homePos(startX + (associated.box.w / 2.0f), startY + (associated.box.h / 2.0f));
+        float distToHome = currentPos.Distance(homePos);
+
+        if (distToHome < 10.0f) {
+            // Chegou em casa
+            associated.box.x = startX;
+            associated.box.y = startY;
+            speed = {PATROL_SPEED, 0};
+            state = PATROL;
+        } else {
+            // Voa na direção de casa
+            Vec2 direction = (homePos - currentPos).Normalize();
+            speed = direction * PATROL_SPEED;
+            
+            associated.box.x += speed.x * dt;
+            associated.box.y += speed.y * dt;
+
+            // Vira o sprite para o lado do voo
+            if (sprite) {
+                sprite->SetFlip(speed.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+            }
+        }
+    }
     
     else if (state == EXPLODE) {
-        // Janela curtinha antes de sumir de fato — dá espaço pra, no futuro,
-        // trocar por uma animação/partícula de explosão em vez de só deletar.
-        // AJUSTAR: se a galera de design mandar uma animação de explosão,
-        // troque a linha abaixo por animator->SetAnimation("explode") e ajuste
-        // o tempo pra bater com a duração dos frames dela.
+        if (animator) animator->SetAnimation("explode");
+        sprite->SetScale(3.0f, 3.0f);
+        
+        Collider* collider = associated.GetComponent<Collider>();
+        if (collider) {
+            collider->Update(dt);
+        }
+
         explodeTimer.Update(dt);
-        if (explodeTimer.Get() >= 0.15f) {
+        if (explodeTimer.Get() >= 0.80f) {
             associated.RequestDelete();
         }
-        // Sai daqui sem atualizar o colisor/checar borda de tela — ele já não
-        // se move mais nessa fase.
         return;
     }
     
-    // Atualiza o colisor
     Collider* collider = associated.GetComponent<Collider>();
     if (collider != nullptr) collider->Update(dt);
 
-    // Se o objeto ficar 500 pixels para trás da câmera, deleta-o para salvar memória!
     if (associated.box.x < Camera::pos.x - 500.0f) {
         associated.RequestDelete();
     }
 }
 
 void Enemy::Render() {}
-void Enemy::NotifyCollision(GameObject& other) {
-    // Por enquanto nada, depois colocamos para dar dano no Saruê!
-    // (O dano de contato já acontece do outro lado: Character::NotifyCollision
-    // detecta o Enemy e aplica dano quando colide, então bater no jogador
-    // durante o mergulho já funciona mesmo sem nada aqui.)
-}
+void Enemy::NotifyCollision(GameObject& other) {}
 
 void Enemy::Damage(int damage, Vec2 attackerPos) {
-    // CORREÇÃO: Verifica apenas se o pássaro já não está atordoado
     if (!isStunned && state != EXPLODE) { 
         hp -= damage;
         isStunned = true;
         damageCooldown.Restart();
 
-        // O Knockback
         speed.y = -300.0f;
         if (associated.box.Center().x > attackerPos.x) {
             speed.x = 300.0f;
         } else {
             speed.x = -300.0f;
         }
-        
-        // NOVO: sem RECOVER, então um hit durante o PATROL ou o DIVE só
-        // aplica o knockback (via bloco isStunned no topo do Update) e depois
-        // volta pro estado em que estava. Se preferirem que apanhar cancele o
-        // mergulho, é só forçar "state = PATROL;" aqui.
         
         if (hp <= 0) associated.RequestDelete();
     }

@@ -4,7 +4,7 @@
 
 Animator::Animator(GameObject& associated) 
     : Component(associated), frameStart(0), frameEnd(0), frameTime(0), 
-    currentFrame(0), timeElapsed(0) {}
+    currentFrame(0), timeElapsed(0), isPlaying(true) {}
 
 void Animator::Update(float dt) {
     // NOVO: Se o frameTime for 0 ou se estiver pausado, não avança a animação!
@@ -47,6 +47,7 @@ void Animator::SetAnimation(std::string name) {
         
         currentFrame = frameStart;
         timeElapsed = 0;
+        isPlaying = true;
         
         SpriteRenderer* sprite = associated.GetComponent<SpriteRenderer>();
         if (sprite != nullptr) {
