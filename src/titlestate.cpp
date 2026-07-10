@@ -28,7 +28,9 @@ TitleState::~TitleState(){
     delete textObject;
 }
 
-void TitleState::LoadAssets(){}
+void TitleState::LoadAssets(){
+    backgroundMusic.Open("audio/titlemusic.mp3");
+}
 
 void TitleState::Update(float dt){
     InputManager& input = InputManager::GetInstance();
@@ -36,8 +38,9 @@ void TitleState::Update(float dt){
     if (input.KeyPress(ESCAPE_KEY)){
         quitRequested = true;
     }
-
     if (input.KeyPress(SPACE_KEY)){
+        // NOVO: Para a música do menu ao entrar no jogo
+        backgroundMusic.Stop(0); 
         Game::GetInstance().Push(new StageState());
     }
 
@@ -46,7 +49,7 @@ void TitleState::Update(float dt){
         showText = !showText;
         textTimer.Restart();
     }
-
+    
     UpdateArray(dt);
     textObject->Update(dt);
 }
@@ -62,6 +65,7 @@ void TitleState::Render(){
 void TitleState::Start(){
     LoadAssets();
     StartArray();
+    backgroundMusic.Play(-1);
 }
 
 void TitleState::Pause(){}

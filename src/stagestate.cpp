@@ -108,9 +108,12 @@ StageState::~StageState() {}
 void StageState::Start() {
     LoadAssets();
     StartArray();
+    backgroundMusic.Play(-1);
 }
 
-void StageState::LoadAssets() {}
+void StageState::LoadAssets() {
+    backgroundMusic.Open("audio/stagemusic.mp3");
+}
 
 void StageState::Update(float dt) {
     InputManager& input = InputManager::GetInstance();
@@ -128,6 +131,9 @@ void StageState::Update(float dt) {
     if (Character::player == nullptr) {
         GameData::playerVictory = false;
         popRequested = true;
+
+        backgroundMusic.Stop(0);
+
         Game::GetInstance().Push(new EndState());
     }
     

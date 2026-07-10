@@ -43,12 +43,15 @@ void EndState::Update(float dt){
     if (input.KeyPress(ESCAPE_KEY)) {
         quitRequested = true;
     }
-
     if (input.KeyPress(SPACE_KEY)) {
         popRequested = true;
+        
+        // Faz a música de Vitória/Derrota parar imediatamente ao sair da tela
+        backgroundMusic.Stop(0); 
+        
         Game::GetInstance().Push(new StageState());
     }
-
+    
     UpdateArray(dt);
 }
 
