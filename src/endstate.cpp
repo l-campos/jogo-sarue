@@ -14,11 +14,13 @@ EndState::EndState(){
     
     if (GameData::playerVictory) {
         sprite = new SpriteRenderer(*bg, "img/Win.png");
+        sprite->SetScale(3.75, 4.689);
         backgroundMusic.Open("audio/endStateWin.ogg");
     } 
     
     else {
         sprite = new SpriteRenderer(*bg, "img/Lose.png");
+        sprite->SetScale(3.75, 4.689);
         backgroundMusic.Open("audio/endStateLose.ogg");
     }
 
