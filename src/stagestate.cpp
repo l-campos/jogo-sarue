@@ -30,10 +30,12 @@ StageState::StageState() {
     float scaleY = 900.0f / 192.0f;  // ~4.69f
 
     GameObject* bg1 = new GameObject();
+    bg1->box.y = -120.0f; // Ajuste vertical para a camada da frente
     bg1->AddComponent(new FundoInfinito(*bg1, "map/fase2/bg4fase2.png", 0.05f, scaleX, scaleY));
     AddObject(bg1);
 
     GameObject* bg2 = new GameObject();
+    bg2->box.y = -120.0f; // Ajuste vertical para a camada da frente
     bg2->AddComponent(new FundoInfinito(*bg2, "map/fase2/bg3fase2.png", 0.15f, scaleX, scaleY));
     AddObject(bg2);
 
@@ -41,11 +43,20 @@ StageState::StageState() {
     bg3->AddComponent(new FundoInfinito(*bg3, "map/fase2/bg2fase2.png", 0.30f, scaleX, scaleY));
     AddObject(bg3);
 
-
     GameObject* bg4 = new GameObject();
-    bg4->box.y = 50.0f; // Ajuste vertical para a camada da frente
+    bg4->box.y = 180.0f; // Ajuste vertical para a camada da frente
     bg4->AddComponent(new FundoInfinito(*bg4, "map/fase2/bg1fase2.png", 0.50f, scaleX, scaleY));
     AddObject(bg4);
+
+    GameObject* bg5 = new GameObject();
+    bg5->box.y = 310.0f; // Ajuste vertical para a camada da frente
+    bg5->AddComponent(new FundoInfinito(*bg5, "map/fase2/bg1fase2.png", 0.50f, scaleX+0.50f, scaleY));
+    AddObject(bg5);
+
+    GameObject* bg6 = new GameObject();
+    bg6->box.y = 440.0f; // Ajuste vertical para a camada da frente
+    bg6->AddComponent(new FundoInfinito(*bg6, "map/fase2/bg1fase2.png", 0.50f, scaleX+1.0f, scaleY));
+    AddObject(bg6);
 
     /* 2. MAPA DE TILES (Carregamento Dinâmico via JSON) */
     GameObject* mapObject = new GameObject();
@@ -107,20 +118,19 @@ void StageState::Update(float dt) {
     if (input.QuitRequested()) {
         quitRequested = true;
     }
-
     if (input.KeyPress(ESCAPE_KEY)) {
         popRequested = true;
         backgroundMusic.Stop(0);
     }
     
     UpdateArray(dt);
-
+    
     if (Character::player == nullptr) {
         GameData::playerVictory = false;
         popRequested = true;
         Game::GetInstance().Push(new EndState());
     }
-
+    
     for (unsigned i = 0; i < objectArray.size(); i++) {
         for (unsigned j = i + 1; j < objectArray.size(); j++) {
             Collider* colliderA = objectArray[i]->GetComponent<Collider>();
@@ -129,7 +139,6 @@ void StageState::Update(float dt) {
             if (colliderA != nullptr && colliderB != nullptr) {
                 float angleA = objectArray[i]->angleDeg * (M_PI / 180.0f);
                 float angleB = objectArray[j]->angleDeg * (M_PI / 180.0f);
-
                 if (Collision::IsColliding(colliderA->box, colliderB->box, angleA, angleB)) {
                     objectArray[i]->NotifyCollision(*objectArray[j]);
                     objectArray[j]->NotifyCollision(*objectArray[i]);
@@ -137,7 +146,7 @@ void StageState::Update(float dt) {
             }
         }
     }
-
+    
     for (int i = 0; i < (int)objectArray.size(); i++) {
         if (objectArray[i]->IsDead()) {
             objectArray.erase(objectArray.begin() + i);
@@ -146,6 +155,53 @@ void StageState::Update(float dt) {
     }
     
     Camera::Update(dt);
+
+    // =========================================================================
+    // LIMITES DA CÂMERA (BORDAS DO MAPA)
+    // =========================================================================
+    if (tileMap != nullptr && tileSet != nullptr) {
+        // Calcula o tamanho total do mapa em pixels lendo as informações do Tiled
+        float mapWidthPixels = tileMap->GetWidth() * tileSet->GetTileWidth();
+        float mapHeightPixels = tileMap->GetHeight() * tileSet->GetTileHeight();
+        
+        float screenWidth = 1200.0f;
+        float screenHeight = 900.0f;
+
+        // Limita a borda Esquerda e Direita
+        if (mapWidthPixels > screenWidth) {
+            if (Camera::pos.x < 0.0f) {
+                Camera::pos.x = 0.0f;
+            } else if (Camera::pos.x > mapWidthPixels - screenWidth) {
+                Camera::pos.x = mapWidthPixels - screenWidth;
+            }
+        } else {
+            // Se o mapa for menor que a tela (ex: tela de Boss), centraliza a câmera
+            Camera::pos.x = (mapWidthPixels - screenWidth) / 2.0f;
+        }
+
+        // Limita a borda Superior e Inferior
+        /*if (mapHeightPixels > screenHeight) {
+            if (Camera::pos.y < 0.0f) {
+                Camera::pos.y = 0.0f;
+            } else if (Camera::pos.y > mapHeightPixels - screenHeight) {
+                Camera::pos.y = mapHeightPixels - screenHeight;
+            }
+        } else {
+            Camera::pos.y = (mapHeightPixels - screenHeight) / 2.0f;
+        }*/
+
+        // Limita APENAS a borda Inferior (O teto agora é infinito!)
+            if (mapHeightPixels > screenHeight) {
+                // A trava de (Camera::pos.y < 0.0f) foi removida para você poder subir o prédio!
+                
+                // Trava para não passar do chão
+                if (Camera::pos.y > mapHeightPixels - screenHeight) {
+                    Camera::pos.y = mapHeightPixels - screenHeight;
+                }
+            } else {
+                Camera::pos.y = (mapHeightPixels - screenHeight) / 2.0f;
+            }
+    }
 }
 
 void StageState::Render() {
