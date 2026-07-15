@@ -74,6 +74,11 @@ Game::Game(string title, int width, int height) {
         cerr << "Erro ao criar renderizador: " << SDL_GetError() << endl;
     }
 
+    SDL_RenderSetLogicalSize(renderer, width, height);
+
+    storedState = nullptr;
+    srand(time(NULL));
+
     storedState = nullptr;
 
     srand(time(NULL));
@@ -159,7 +164,6 @@ void Game::Run() {
         //
         // A cor aqui é o "céu" da fase -- AJUSTAR para o tom que o designer
         // quiser (R, G, B, A). Valores atuais: azul claro (135, 206, 235).
-        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255);
         SDL_RenderClear(renderer);
 
         stateStack.top()->Render();

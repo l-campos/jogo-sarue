@@ -23,7 +23,7 @@ Enemy::Enemy(GameObject& associated, float startX, float startY, TileMap* map)
 
     // CARREGA APENAS A IMAGEM DE PATRULHA (4 frames)
     SpriteRenderer* sprite = new SpriteRenderer(associated, "img/pombo_patrulha.png", 4, 1);
-    sprite->SetScale(2.0f, 2.0f);
+    sprite->SetScale(4.0f, 4.0f);
     associated.AddComponent(sprite);
 
     Animator* animator = new Animator(associated);
@@ -69,7 +69,7 @@ void Enemy::Update(float dt) {
                 if (sprite) {
                     sprite->Open("img/pombo_patrulha.png");
                     sprite->SetFrameCount(4, 1);
-                    sprite->SetScale(2.0f, 2.0f);
+                    sprite->SetScale(4.0f, 4.0f);
                 }
             }
             state = RETURNING;
@@ -108,7 +108,7 @@ void Enemy::Update(float dt) {
                 if (sprite) {
                     sprite->Open("img/pombo_mergulho.png");
                     sprite->SetFrameCount(5, 1);
-                    sprite->SetScale(2.0f, 2.0f);
+                    sprite->SetScale(4.0f, 4.0f);
                     sprite->SetFlip(speed.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
                 }
                 
@@ -181,7 +181,7 @@ void Enemy::Update(float dt) {
     
     else if (state == EXPLODE) {
         if (animator) animator->SetAnimation("explode");
-        sprite->SetScale(3.0f, 3.0f);
+        sprite->SetScale(4.0f, 4.0f);
         
         Collider* collider = associated.GetComponent<Collider>();
         if (collider) {

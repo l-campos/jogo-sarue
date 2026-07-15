@@ -29,7 +29,7 @@ EndState::EndState(){
 
     GameObject* textObj = new GameObject();
     textObj->box.x = 180;
-    textObj->box.y = 440;
+    textObj->box.y = 840;
     SDL_Color color = {255, 255, 255, 255};
 
     Text* text = new Text(*textObj, "font/neodgm.ttf", 40, Text::BLENDED, "ESC para Sair ou ESPAÇO para Jogar Novamente", color); 

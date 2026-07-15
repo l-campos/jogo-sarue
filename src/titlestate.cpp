@@ -31,7 +31,22 @@ void TitleState::Update(float dt){
         backgroundMusic.Stop(0); 
         Game::GetInstance().Push(new StageState());
     }
-
+    if (input.KeyPress(SDLK_F11)) {
+        // Pega a janela atual através do Singleton do Game
+        SDL_Window* win = Game::GetInstance().window; 
+        
+        // Verifica qual é o estado atual da janela (se já está em fullscreen ou não)
+        Uint32 flags = SDL_GetWindowFlags(win);
+        
+        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+            // Se já está em tela cheia, volta para janela normal
+            SDL_SetWindowFullscreen(win, 0);
+        } else {
+            // Se está em janela, vai para tela cheia "falsa" (Desktop), 
+            // que é a melhor opção para jogos modernos se adaptarem ao monitor do jogador.
+            SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        }
+    }
     UpdateArray(dt);
 }
 

@@ -23,6 +23,7 @@ public:
     void Run();
     
     float GetDeltaTime();
+    SDL_Window* window;
 
 private:
     void CalculateDeltaTime();
@@ -31,7 +32,6 @@ private:
     
     static Game* instance; 
     
-    SDL_Window* window;
     SDL_Renderer* renderer;
     State* storedState;
     std::stack<std::unique_ptr<State>> stateStack;    

@@ -24,6 +24,7 @@
 #include "boss.h"
 
 StageState::StageState() {
+    GameData::playerVictory = false;
     /* 1. BACKGROUNDS (Parallax usando classe FundoInfinito) */
     // Como a tela tem 1200x900 e o bg original tem 320x192, precisamos escalar
     float scaleX = 1200.0f / 320.0f; // 3.75f
